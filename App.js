@@ -18,6 +18,7 @@ import UserOutlined from './assets/icons/userOutlined';
 import HomeFilled from './assets/icons/homeFilled';
 import HomeOutlined from './assets/icons/homeOutlined';
 import { StatusBarProvider, useStatusBar } from './contexts/StatusBarContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -71,7 +72,7 @@ const HomeTabs = () => {
 const App = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const theme = useTheme();
-  const {status} = useStatusBar()
+  const { status } = useStatusBar()
 
   if (!fontLoaded) {
     return (
@@ -98,9 +99,11 @@ const App = () => {
 };
 
 export default () => (
-  <StatusBarProvider>
-    <ThemeProvider>
-      <App />
-    </ThemeProvider>
-  </StatusBarProvider>
+  <AuthProvider>
+    <StatusBarProvider>
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
+    </StatusBarProvider>
+  </AuthProvider>
 );

@@ -2,22 +2,23 @@ import React from 'react'
 import { TouchableOpacity, Text, StyleSheet } from 'react-native'
 import { useTheme } from '../contexts/ThemeContext'
 
-const Button = ({ children, highlight, onPress }) => {
+const Button = ({ children, highlight, onPress, color, transparent, width, height }) => {
 
     const theme = useTheme()
 
     const styles = StyleSheet.create({
         buttonBg: {
-            backgroundColor: theme.backgroundColors.secondary,
+            backgroundColor: transparent ? 'rgba(0, 0, 0, 0)' : theme.backgroundColors.main2,
             borderRadius: theme.other.borderRadius.btn,
-            borderColor: theme.backgroundColors.secondary,
+            borderColor: theme.other.border,
             borderWidth: '1px solid',
-            height: 46,
+            height: height ? height : 46,
             justifyContent: 'center',
             alignItems: 'center',
+            width: width && width,
         },
         buttonText: {
-            color: theme.colors.third,
+            color: theme.colors.main,
             fontWeight: 600,
             fontFamily: 'Inter-SemiBold',
         }
@@ -29,9 +30,10 @@ const Button = ({ children, highlight, onPress }) => {
             borderRadius: theme.other.borderRadius.btn,
             borderColor: theme.backgroundColors.highlight,
             borderWidth: '1px solid',
-            height: 46,
+            height: height ? height : 46,
             justifyContent: 'center',
             alignItems: 'center',
+            width: width && width,
         },
         buttonText: {
             color: theme.colors.main2,
