@@ -19,7 +19,7 @@ const theme = {
   other: {
     border: '#D5D5D5',
     borderRadius: {
-      btn: '10px',
+      btn: '15px',
       container: '35px',
     }
   },

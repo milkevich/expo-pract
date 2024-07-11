@@ -8,28 +8,50 @@ import Divider from '../UI/Divider';
 import Input from '../UI/Input';
 import { useTheme } from '../contexts/ThemeContext';
 import Typography from '../UI/Typography';
-import googleIcon from '../assets/google-icon.png'
+import googleIcon from '../assets/google-icon.png';
+import Loader from '../UI/Loader';
+import alertIcon from '../assets/alert-icon.png';
 
 const LogInScreen = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [getStartedShown, setGetStartedShown] = useState(false);
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [showNext, setShowNext] = useState(false)
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [showNext, setShowNext] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const navigation = useNavigation();
   const theme = useTheme();
-
+  const [loading, setLoading] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim2 = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(900)).current;
+  const errorSlideAnim = useRef(new Animated.Value(-30)).current;
+  const errorFadeAnim = useRef(new Animated.Value(0)).current;
 
   const submit = async () => {
-    if (email && password) {
+    if (username && password) {
+      setLoading(true);
       try {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, username + '@example.com', password);
         navigation.navigate('Home');
       } catch (error) {
+        setErrorMessage('Make sure you enter valid username and password.');
+        Animated.parallel([
+          Animated.timing(errorSlideAnim, {
+            toValue: 0,
+            duration: 300,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(errorFadeAnim, {
+            toValue: 1,
+            duration: 300,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+          }),
+        ]).start();
+        setLoading(false);
         console.log(error);
       }
     }
@@ -88,21 +110,24 @@ const LogInScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      setEmail('');
+      setUsername('');
       setPassword('');
       setGetStartedShown(false);
       setFirstName('');
       setLastName('');
       setShowNext(false);
-      slideAnim.setValue(900); 
+      setErrorMessage('');
+      slideAnim.setValue(900);
       fadeAnim2.setValue(1);
+      errorSlideAnim.setValue(-30);
+      errorFadeAnim.setValue(0);
     }, [])
   );
 
   const styles = StyleSheet.create({
     mainContainer: {
       flex: 1,
-      backgroundColor: theme.backgroundColors.main,
+      backgroundColor: theme.backgroundColors.main2,
     },
     headerContainer: {
       position: "relative",
@@ -145,7 +170,7 @@ const LogInScreen = () => {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: -5
+      marginBottom: -5,
     },
     googleIcon: {
       width: 20,
@@ -196,9 +221,9 @@ const LogInScreen = () => {
     }
   };
 
-
   return (
     <View style={styles.mainContainer}>
+      {loading && <Loader />}
       {getStartedShown && (
         <TouchableWithoutFeedback onPress={handleBackdropPress}>
           <Animated.View style={[styles.backdrop, { opacity: fadeAnim }]} />
@@ -207,10 +232,16 @@ const LogInScreen = () => {
       <View style={styles.headerContainer}>
         <Typography weight={600} headline={true}>Welcome Back! 👋</Typography>
         <Typography weight={600} body={true}>Please enter your information below</Typography>
+        {errorMessage !== '' && (
+          <Animated.View style={{ transform: [{ translateY: errorSlideAnim }], opacity: errorFadeAnim, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10, padding: 15, backgroundColor: 'rgba(255, 0, 0, 0.1)', borderRadius: 20, position: 'relative', top: 165 }}>
+            <Image style={{ width: 25, height: 25 }} source={alertIcon} />
+            <Typography width={280} color={theme.colors.main}>{errorMessage}</Typography>
+          </Animated.View>
+        )}
       </View>
       <View style={styles.formContainer}>
         <View>
-          <Input autoCapitalize={false} keyboardType="email-address" includeLabel={true} label='Email' placeholder="Ex. example@mail.com" value={email} onChangeText={setEmail} />
+          <Input autoCapitalize={false} keyboardType="email-address" includeLabel={true} label='Username' placeholder="Enter your username" value={username} onChangeText={setUsername} />
         </View>
         <View>
           <Input autoCapitalize={false} includeLabel={true} label='Password' placeholder="Enter your password" value={password} onChangeText={setPassword} password={true} />
@@ -228,10 +259,10 @@ const LogInScreen = () => {
             </View>
             <View style={{ display: 'flex', gap: 10 }}>
               <View>
-                <Input autoCapitalize={true} includeLabel={true} transparent={true} label='First Name' placeholder="Ex. Mary" value={firstName} onChangeText={setFirstName} />
+                <Input autoCapitalize={true} includeLabel={true} label='First Name' placeholder="Ex. Mary" value={firstName} onChangeText={setFirstName} />
               </View>
               <View>
-                <Input autoCapitalize={true} includeLabel={true} transparent={true} label='Last Name' placeholder="Ex. Sue" value={lastName} onChangeText={setLastName} />
+                <Input autoCapitalize={true} includeLabel={true} label='Last Name' placeholder="Ex. Sue" value={lastName} onChangeText={setLastName} />
               </View>
             </View>
             <Button onPress={handleNext} highlight={true}>Next</Button>

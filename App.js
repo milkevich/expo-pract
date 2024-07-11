@@ -19,6 +19,7 @@ import HomeFilled from './assets/icons/homeFilled';
 import HomeOutlined from './assets/icons/homeOutlined';
 import { StatusBarProvider, useStatusBar } from './contexts/StatusBarContext';
 import { AuthProvider } from './contexts/AuthContext';
+import CreatePost from './screens/CreatePost';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -60,6 +61,18 @@ const HomeTabs = () => {
         tabBarActiveTintColor: theme.colors.main,
         tabBarInactiveTintColor: theme.colors.secondary,
         tabBarShowLabel: false,
+        tabBarStyle: {
+          borderTopLeftRadius: 35,
+          borderTopRightRadius: 35,
+          borderTopWidth: 0,
+          elevation: 10, // Android shadow
+          shadowColor: 'rgba(0, 0, 0, 0.25)', // iOS shadow
+          shadowOffset: { width: 0, height: 10 }, // iOS shadow
+          shadowOpacity: 0.3, // iOS shadow
+          shadowRadius: 20, // iOS shadow
+          overflow: 'hidden',
+          position: 'absolute',
+        },
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
@@ -72,7 +85,7 @@ const HomeTabs = () => {
 const App = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const theme = useTheme();
-  const { status } = useStatusBar()
+  const { status } = useStatusBar();
 
   if (!fontLoaded) {
     return (
@@ -91,6 +104,7 @@ const App = () => {
         <Stack.Navigator initialRouteName="LogIn">
           <Stack.Screen name="LogIn" component={LogInScreen} options={{ headerShown: false }} />
           <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="CreatePost" component={CreatePost} options={{ headerShown: false }} />
           <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>

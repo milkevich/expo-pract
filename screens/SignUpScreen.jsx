@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Image, StyleSheet, TouchableOpacity, Animated, Easing } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, CommonActions } from '@react-navigation/native';
 import Input from '../UI/Input';
 import { useTheme } from '../contexts/ThemeContext';
 import Button from '../UI/Button';
@@ -9,18 +9,21 @@ import arrow from '../assets/arrow-icon.png';
 import Typography from '../UI/Typography';
 import userIcon from '../assets/user-placeholder-icon.jpeg';
 import plusIcon from '../assets/plus-icon.png';
-import { AuthContext } from '../contexts/AuthContext';
+import { useUser } from '../contexts/AuthContext';
 import { createUserWithEmailAndPassword, updateProfile } from '@firebase/auth';
 import { auth, db, storage } from '../firebaseConfig';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc } from 'firebase/firestore';
+import Loader from '../UI/Loader';
 
 const SignUpScreen = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [stepCount, setStepCount] = useState(1);
+    const [loading, setLoading] = useState(false)
     const theme = useTheme();
     const route = useRoute();
+    const { setUser } = useUser();
     const { firstName, lastName } = route.params;
     const [photo, setPhoto] = useState(null);
     const fadeAnim = useState(new Animated.Value(1))[0];
@@ -142,6 +145,7 @@ const SignUpScreen = () => {
 
     const submit = async () => {
         if (stepCount === 2 && isValidPassword(password) && isValidUsername(username)) {
+            setLoading(true)
             try {
                 const email = generateEmailFromUsername(username);
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -156,45 +160,63 @@ const SignUpScreen = () => {
 
                 const uploadTask = uploadBytesResumable(storageRef, blob);
 
-                uploadTask.on('state_changed', 
-                  (snapshot) => {
-                    // Optional: Add progress indicator
-                  }, 
-                  (error) => {
-                    console.error("Error uploading file:", error);
-                  }, 
-                  async () => {
-                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                    console.log("File available at:", downloadURL);
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        //  add progress 
+                    },
+                    (error) => {
+                        console.error("Error uploading file:", error);
+                    },
+                    async () => {
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                        console.log("File available at:", downloadURL);
 
-                    await updateProfile(user, {
-                        photoURL: downloadURL,
-                    });
+                        await updateProfile(user, {
+                            photoURL: downloadURL,
+                        });
 
-                    const userRef = doc(db, "users", user.uid);
-                    await setDoc(userRef, {
-                        uid: user.uid,
-                        firstName,
-                        lastName,
-                        username,
-                        password,
-                        photoURL: downloadURL,
-                    });
+                        const userRef = doc(db, "users", user.uid);
+                        await setDoc(userRef, {
+                            uid: user.uid,
+                            firstName,
+                            lastName,
+                            username,
+                            password,
+                            photoURL: downloadURL,
+                            followers: 0,
+                            followings: 0,
+                            posts: 0,
+                            online: true
+                        });
 
-                    console.log("User document created in Firestore with ID:", user.uid);
-                    navigation.navigate('Home')
-                    navigation.dispatch(
-                        CommonActions.reset({
-                          index: 0,
-                          routes: [{ name: 'Home' }],
-                        })
-                      );                
-                    });
+                        await setUser({
+                            uid: user.uid,
+                            firstName,
+                            lastName,
+                            username,
+                            password,
+                            photoURL: downloadURL,
+                            followers: 0,
+                            followings: 0,
+                            posts: 0,
+                        });
+
+                        console.log("User document created in Firestore with ID:", user.uid);
+                        navigation.dispatch(
+                            CommonActions.reset({
+                                index: 0,
+                                routes: [{ name: 'Home' }],
+                            })
+                        );
+                    }
+                );
 
             } catch (error) {
                 console.error("Error creating user:", error);
+            setLoading(false)
             }
         } else {
+            setLoading(false)
             let errorMessage = 'Please enter valid information:';
             if (!isValidUsername(username)) {
                 errorMessage += '\n- Username should be at least 3 characters long and contain no spaces (use underscores).';
@@ -236,6 +258,7 @@ const SignUpScreen = () => {
 
     return (
         <View style={styles.container}>
+            {loading && <Loader/>}
             <View style={styles.header}>
                 <Button height={50} width={50} onPress={stepCount === 1 ? handleReset : prevStep}>
                     <View>

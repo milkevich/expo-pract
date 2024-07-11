@@ -8,9 +8,9 @@ const Button = ({ children, highlight, onPress, color, transparent, width, heigh
 
     const styles = StyleSheet.create({
         buttonBg: {
-            backgroundColor: transparent ? 'rgba(0, 0, 0, 0)' : theme.backgroundColors.main2,
+            backgroundColor: transparent ? 'rgba(0, 0, 0, 0)' : theme.backgroundColors.main,
             borderRadius: theme.other.borderRadius.btn,
-            borderColor: theme.other.border,
+            borderColor: theme.backgroundColors.main,
             borderWidth: '1px solid',
             height: height ? height : 46,
             justifyContent: 'center',
