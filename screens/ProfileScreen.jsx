@@ -1,36 +1,41 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image, ScrollView, StatusBar } from 'react-native';
+import { StyleSheet, View, Image, ScrollView, StatusBar } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import Typography from '../UI/Typography';
 import Button from '../UI/Button';
 import { useUser } from '../contexts/AuthContext';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../firebaseConfig';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { auth, db } from '../firebaseConfig';
 import userIcon from '../assets/user-placeholder-icon.jpeg';
-import sendIcon from '../assets/send-icon.png';
-import { useNavigation } from '@react-navigation/native';
+import sendIcon from '../assets/plus-icon.png';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import Feed from '../components/Feed';
+import Skeleton from '../UI/Skeleton';
+import { signOut } from '@firebase/auth';
 
 export default function ProfileScreen() {
   const [userData, setUserData] = useState(null);
   const [noUser, setNoUser] = useState(false);
   const { user } = useUser();
-  const navigation = useNavigation()
+  const navigation = useNavigation();
+  const theme = useTheme();
 
 
   useEffect(() => {
+    let unsubscribe;
+
     const fetchUserData = async () => {
       try {
-        const usersCollectionRef = collection(db, 'users');
-        const usersQuery = query(usersCollectionRef, where('uid', '==', user.uid));
-        const querySnapshot = await getDocs(usersQuery);
+        const userRef = doc(db, 'users', user.uid);
 
-        if (!querySnapshot.empty) {
-          const userDoc = querySnapshot.docs[0];
-          setUserData(userDoc.data());
-        } else {
-          console.log('User data not found');
-          setNoUser(true);
-        }
+        unsubscribe = onSnapshot(userRef, (doc) => {
+          if (doc.exists()) {
+            setUserData(doc.data());
+          } else {
+            console.log('User data not found');
+            setNoUser(true);
+          }
+        });
       } catch (error) {
         console.error('Error fetching user data:', error);
         setNoUser(true);
@@ -40,20 +45,27 @@ export default function ProfileScreen() {
     if (user && user.uid) {
       fetchUserData();
     }
-  }, [user]);
 
-  const theme = useTheme();
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [user]);
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: theme.backgroundColors.main,
+      paddingBottom: 30,
+      paddingTop: 49,
     },
     contentContainer: {
       padding: 21,
       backgroundColor: theme.backgroundColors.main,
       display: 'flex',
       gap: 15,
+      paddingBottom: 50,
     },
     profileContainer: {
       padding: 17,
@@ -77,22 +89,6 @@ export default function ProfileScreen() {
       position: 'absolute',
       top: 6,
       left: 6,
-    },
-    statusIndicator: {
-      width: 30,
-      height: 30,
-      backgroundColor: '#63C75D',
-      borderRadius: 50,
-      borderWidth: 8,
-      borderColor: theme.backgroundColors.main2,
-      position: 'absolute',
-      bottom: 0,
-      right: 0,
-      shadowColor: 'transparent',
-      shadowOffset: { width: 0, height: 0 },
-      shadowOpacity: 0,
-      shadowRadius: 0,
-      elevation: 0,
     },
     buttonsContainer: {
       padding: 17,
@@ -131,70 +127,95 @@ export default function ProfileScreen() {
     },
   });
 
+  const handleLogOut = () => {
+    navigation.dispatch(
+      CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'LogIn' }],
+      })
+  );
+  }
+
   return (
-    <>
-    <View style={{width: '100%', backgroundColor: theme.backgroundColors.main, height: 49}}></View>
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.profileContainer}>
-        <View style={{ display: 'flex', flexDirection: 'row', gap: 18 }}>
-          <View style={styles.profileImageContainer}>
-            {userData?.photoURL && (
-              <Image style={styles.profileImage} source={{ uri: userData.photoURL }} />
-            )}
-            <View style={styles.statusIndicator} />
-          </View>
-          <View style={{ display: 'flex', gap: 13 }}>
-            <View>
-              <Typography headline={true} color={theme.colors.main} size={16}>{userData?.firstName} {userData?.lastName}</Typography>
-              <Typography weight='Medium' headline={false} color={theme.colors.third} size={14}>@{userData?.username}</Typography>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        {userData ?
+          <View style={styles.profileContainer}>
+            <View style={{ display: 'flex', flexDirection: 'row', gap: 18 }}>
+              <View style={styles.profileImageContainer}>
+                {userData?.photoURL && (
+                  <Image style={styles.profileImage} source={{ uri: userData.photoURL }} />
+                )}
+              </View>
+              <View style={{ display: 'flex', gap: 13 }}>
+                <View>
+                  <Typography headline={true} color={theme.colors.main} size={16}>{userData?.firstName} {userData?.lastName}</Typography>
+                  <Typography weight='Medium' headline={false} color={theme.colors.third} size={14}>@{userData?.username}</Typography>
+                </View>
+                <View style={{ display: 'flex', flexDirection: 'row', gap: 24 }}>
+                  <View>
+                    <Typography textAlign='center' weight='Bold' headline={true} color={theme.colors.main} size={14}>{userData?.posts}</Typography>
+                    <Typography weight='Medium' headline={false} color={theme.colors.third} size={14}>Posts</Typography>
+                  </View>
+                  <View>
+                    <Typography textAlign='center' weight='Bold' headline={true} color={theme.colors.main} size={14}>{userData?.followers.length}</Typography>
+                    <Typography weight='Medium' headline={false} color={theme.colors.third} size={14}>Followers</Typography>
+                  </View>
+                  <View>
+                    <Typography textAlign='center' weight='Bold' headline={true} color={theme.colors.main} size={14}>{userData?.followings.length}</Typography>
+                    <Typography weight='Medium' headline={false} color={theme.colors.third} size={14}>Following</Typography>
+                  </View>
+                </View>
+              </View>
             </View>
-            <View style={{ display: 'flex', flexDirection: 'row', gap: 24 }}>
-              <View>
-                <Typography textAlign='center' weight='Bold' headline={true} color={theme.colors.main} size={14}>{userData?.posts}</Typography>
-                <Typography weight='Medium' headline={false} color={theme.colors.third} size={14}>Posts</Typography>
-              </View>
-              <View>
-                <Typography textAlign='center' weight='Bold' headline={true} color={theme.colors.main} size={14}>{userData?.followers}</Typography>
-                <Typography weight='Medium' headline={false} color={theme.colors.third} size={14}>Followers</Typography>
-              </View>
-              <View>
-                <Typography textAlign='center' weight='Bold' headline={true} color={theme.colors.main} size={14}>{userData?.followings}</Typography>
-                <Typography weight='Medium' headline={false} color={theme.colors.third} size={14}>Following</Typography>
-              </View>
-            </View>
           </View>
-        </View>
-      </View>
-      <View style={styles.buttonsContainer}>
-        <Button width={150}>Edit</Button>
-        <Button width={150}>Share</Button>
-      </View>
-      <View style={styles.shareContainer}>
-        <View style={styles.shareContent}>
-          {userData?.photoURL && (
-            <Image style={styles.shareImage} source={{ uri: userData.photoURL }} />
-          )}
-          <View>
-            <Typography color={theme.colors.main} weight='SemiBold' size={16}>{userData?.firstName} {userData?.lastName}</Typography>
-            <Typography weight='Medium' size={13}>Share text or media content</Typography>
+          :
+          <View style={{ marginTop: -13 }}>
+            <Skeleton height={120} />
           </View>
-          <View style={styles.sendButton}>
-            <Button onPress={() => navigation.navigate('CreatePost', { userData })} width={39} height={39} highlight={true}>
-              <View style={{ position: 'relative' }}>
-                <Image style={{ width: 21, height: 21, position: 'absolute', bottom: -7, left: -10 }} source={sendIcon} />
-              </View>
-            </Button>
-          </View>
-        </View>
-      </View>
-      <View style={styles.noPostsContainer}>
-        {userData?.posts === 0 &&
-          <Typography color={theme.colors.secondary} textAlign='center'>
-            No posts yet.
-          </Typography>
         }
-      </View>
-    </ScrollView>
-    </>
+        {userData ?
+          <View style={styles.buttonsContainer}>
+            <Button onPress={() => navigation.navigate('Edit')} width={150}>Edit</Button>
+            <Button onPress={handleLogOut} width={150}>Log Out</Button>
+          </View> :
+          <View style={{ marginTop: -14 }}>
+            <Skeleton height={80} />
+          </View>
+        }
+        {userData ?
+          <View style={styles.shareContainer}>
+            <View style={styles.shareContent}>
+              {userData?.photoURL && (
+                <Image style={styles.shareImage} source={{ uri: userData.photoURL }} />
+              )}
+              <View>
+                <Typography color={theme.colors.main} weight='SemiBold' size={16}>{userData?.firstName} {userData?.lastName}</Typography>
+                <Typography weight='Medium' size={13}>Share text or media content</Typography>
+              </View>
+              <View style={styles.sendButton}>
+                <Button onPress={() => navigation.navigate('CreatePost', { userData })} width={39} height={39} highlight={true}>
+                  <View style={{ position: 'relative' }}>
+                    <Image style={{ width: 21, height: 21, position: 'absolute', bottom: -7, left: -10 }} source={sendIcon} />
+                  </View>
+                </Button>
+              </View>
+            </View>
+          </View>
+          :
+          <View style={{ marginTop: -14 }}>
+            <Skeleton height={72} />
+          </View>
+        }
+
+        {userData?.posts === 0 ?
+          <View style={styles.noPostsContainer}>
+            <Typography color={theme.colors.secondary} textAlign='center'>
+              No posts yet.
+            </Typography>
+          </View>
+          : <Feed postsFrom={user.uid} />}
+      </ScrollView>
+    </View>
   );
 }

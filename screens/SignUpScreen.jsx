@@ -54,7 +54,7 @@ const SignUpScreen = () => {
     };
 
     const isValidUsername = (username) => {
-        const usernamePattern = /^[a-zA-Z0-9_]{3,}$/;
+        const usernamePattern = /^[a-zA-Z0-9_.]{3,}$/;
         return usernamePattern.test(username);
     };
 
@@ -183,8 +183,8 @@ const SignUpScreen = () => {
                             username,
                             password,
                             photoURL: downloadURL,
-                            followers: 0,
-                            followings: 0,
+                            followers: [],
+                            followings: [],
                             posts: 0,
                             online: true
                         });
@@ -196,16 +196,16 @@ const SignUpScreen = () => {
                             username,
                             password,
                             photoURL: downloadURL,
-                            followers: 0,
-                            followings: 0,
+                            followers: [],
+                            followings: [],
                             posts: 0,
                         });
 
                         console.log("User document created in Firestore with ID:", user.uid);
                         navigation.dispatch(
                             CommonActions.reset({
-                                index: 0,
-                                routes: [{ name: 'Home' }],
+                                index: 1,
+                                routes: [{ name: 'HomeTabs' }],
                             })
                         );
                     }
@@ -273,10 +273,10 @@ const SignUpScreen = () => {
             {stepCount === 1 ?
                 <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateX: slideAnim }] }]}>
                     <View>
-                        <Input transparent={true} autoCapitalize={false} includeLabel={true} label='Username' placeholder="Create a username" value={username} onChangeText={setUsername} />
+                        <Input marginBottom={20} autoCapitalize={false} includeLabel={true} label='Username' placeholder="Create a username" value={username} onChangeText={setUsername} />
                     </View>
                     <View>
-                        <Input transparent={true} autoCapitalize={false} includeLabel={true} label='Password' placeholder="Enter your password" value={password} onChangeText={setPassword} password={true} />
+                        <Input autoCapitalize={false} includeLabel={true} label='Password' placeholder="Enter your password" value={password} onChangeText={setPassword} password={true} />
                     </View>
                 </Animated.View>
                 :

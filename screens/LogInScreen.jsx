@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Text, TextInput, TouchableOpacity, View, StyleSheet, TouchableWithoutFeedback, Animated, Easing, Image } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword } from '@firebase/auth';
 import Button from '../UI/Button';
@@ -34,7 +34,13 @@ const LogInScreen = () => {
       setLoading(true);
       try {
         await signInWithEmailAndPassword(auth, username + '@example.com', password);
-        navigation.navigate('Home');
+        navigation.dispatch(
+          CommonActions.reset({
+              index: 0,
+              routes: [{ name: 'HomeTabs' }],
+          })
+      );
+        setLoading(false);
       } catch (error) {
         setErrorMessage('Make sure you enter valid username and password.');
         Animated.parallel([
@@ -141,6 +147,7 @@ const LogInScreen = () => {
       display: 'flex',
       flexDirection: 'column',
       gap: 20,
+      borderRadius: 35,
     },
     getStartedContainer: {
       height: '100%',
@@ -267,11 +274,8 @@ const LogInScreen = () => {
             </View>
             <Button onPress={handleNext} highlight={true}>Next</Button>
             <Divider top={-5} bottom={-5} includeOr={true} />
-            <Button highlight={false}>
-              <View style={styles.googleButtonContainer}>
-                <Image source={googleIcon} style={styles.googleIcon} />
-                <Text style={{ fontWeight: 600, color: theme.colors.third }}>Continue with Google</Text>
-              </View>
+            <Button onPress={handleBackdropPress} highlight={false}>
+              Close
             </Button>
           </Animated.View>
         </Animated.View>

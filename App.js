@@ -20,6 +20,14 @@ import HomeOutlined from './assets/icons/homeOutlined';
 import { StatusBarProvider, useStatusBar } from './contexts/StatusBarContext';
 import { AuthProvider } from './contexts/AuthContext';
 import CreatePost from './screens/CreatePost';
+import BrowseScreen from './screens/BrowseScreen';
+import BrowseFilled from './assets/icons/browseFilled'
+import BrowseOutlined from './assets/icons/browseOutlined'
+import OtherUsersProfile from './screens/OtherUsersProfile';
+import { BackdropProvider } from './contexts/BackDropContext';
+import EditScreen from './screens/EditScreen';
+import { ReloadProvider } from './contexts/ReloadContext';
+import Chat from './screens/Chat';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -54,6 +62,8 @@ const HomeTabs = () => {
             IconComponent = focused ? ChatsFilled : ChatsOutlined;
           } else if (route.name === 'Home') {
             IconComponent = focused ? HomeFilled : HomeOutlined;
+          } else if (route.name === 'Browse') {
+            IconComponent = focused ? BrowseFilled : BrowseOutlined;
           }
 
           return <IconComponent width={size} height={size} fill={color} />;
@@ -65,17 +75,18 @@ const HomeTabs = () => {
           borderTopLeftRadius: 35,
           borderTopRightRadius: 35,
           borderTopWidth: 0,
-          elevation: 10, // Android shadow
-          shadowColor: 'rgba(0, 0, 0, 0.25)', // iOS shadow
-          shadowOffset: { width: 0, height: 10 }, // iOS shadow
-          shadowOpacity: 0.3, // iOS shadow
-          shadowRadius: 20, // iOS shadow
+          elevation: 10,
+          shadowColor: 'rgba(0, 0, 0, 0.25)',
+          shadowOffset: { width: 0, height: 10 },
+          shadowOpacity: 0.3,
+          shadowRadius: 20,
           overflow: 'hidden',
           position: 'absolute',
         },
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Browse" component={BrowseScreen} />
       <Tab.Screen name="Chats" component={ChatsScreen} />
       <Tab.Screen name="You" component={ProfileScreen} />
     </Tab.Navigator>
@@ -105,7 +116,10 @@ const App = () => {
           <Stack.Screen name="LogIn" component={LogInScreen} options={{ headerShown: false }} />
           <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
           <Stack.Screen name="CreatePost" component={CreatePost} options={{ headerShown: false }} />
-          <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
+          <Stack.Screen name="UsersProfile" component={OtherUsersProfile} options={{ headerShown: false }} />
+          <Stack.Screen name="HomeTabs" component={HomeTabs} options={{ headerShown: false }} />
+          <Stack.Screen name="Edit" component={EditScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Chat" component={Chat} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
     </>
@@ -113,11 +127,17 @@ const App = () => {
 };
 
 export default () => (
-  <AuthProvider>
-    <StatusBarProvider>
-      <ThemeProvider>
-        <App />
-      </ThemeProvider>
-    </StatusBarProvider>
-  </AuthProvider>
+
+  <BackdropProvider>
+    <AuthProvider>
+      <StatusBarProvider>
+        <ThemeProvider>
+          <ReloadProvider>
+            <App />
+          </ReloadProvider>
+        </ThemeProvider>
+      </StatusBarProvider>
+    </AuthProvider>
+  </BackdropProvider>
+
 );
