@@ -12,6 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useReload } from '../contexts/ReloadContext';
 import * as Haptics from 'expo-haptics';
 import Skeleton from '../UI/Skeleton';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const BrowseScreen = () => {
     const [users, setUsers] = useState([]);
@@ -183,14 +184,16 @@ const BrowseScreen = () => {
                     <Skeleton height={68} />
                 </View>
             }
-            <View style={{height: 6}}/>
-            <FlatList
-                data={filteredUsers}
-                renderItem={renderItem}
-                keyExtractor={item => item.id}
-                contentContainerStyle={styles.contentContainer}
-                ListFooterComponent={<View style={{ height: 59 }} />}
-            />
+            <View style={{ height: 6 }} />
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <FlatList
+                    data={filteredUsers}
+                    renderItem={renderItem}
+                    keyExtractor={item => item.id}
+                    contentContainerStyle={styles.contentContainer}
+                    ListFooterComponent={<View style={{ height: 59 }} />}
+                />
+            </ScrollView>
         </View>
     );
 };

@@ -500,9 +500,21 @@ const Chat = () => {
             paddingLeft: 5,
             height: 39,
         },
+        waveformContainerInput: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '70%',
+            borderRadius: 15,
+            paddingRight: 15,
+            paddingLeft: 5,
+            height: 39,
+            backgroundColor: theme.backgroundColors.main
+        },
         waveformBar: {
             width: 3,
             borderRadius: 2,
+            backgroundColor: theme.colors.main,
         },
         voiceMessageContainerMain: {
             flexDirection: 'row',
@@ -840,7 +852,7 @@ const Chat = () => {
                             </View>
                         }
                         {!recording && recordedMessage &&
-                            <View style={styles.waveformContainer}>
+                            <View style={styles.waveformContainerInput}>
                                 <Button width={39} height={39} onPress={() => {
                                     recordedMessage.sound.replayAsync()
                                 }}><Image style={{ width: 21, height: 21, marginTop: -5 }} source={recordedMessagePlaying ? pauseIcon : playIcon} /></Button>

@@ -539,6 +539,15 @@ const Feed = ({ postsFrom, allPosts, following }) => {
         }
     };
     
+    function formatNum(number) {
+        if (number < 1000) {
+          return number.toString();
+        } else if (number < 1000000) {
+          return (number / 1000).toFixed(1) + 'K';
+        } else {
+          return (number / 1000000).toFixed(1) + 'M';
+        }
+      }
 
     return (
         <View>
@@ -670,14 +679,14 @@ const Feed = ({ postsFrom, allPosts, following }) => {
                                         { useNativeDriver: false }
                                     )}
                                 />
-                                <View style={styles.paginatorContainer}>
+                                <View style={[styles.paginatorContainer, {opacity: post.imgs.length > 1 ? 1 : 0}]}>
                                     <Paginator data={post.imgs} scrollX={scrollX} />
                                 </View>
                             </View>
                         )}
                         <Text style={styles.postText}>{post.text}</Text>
                         <View style={{ flexDirection: 'row', gap: 14, borderRadius: 15, height: 39, alignItems: 'center', justifyContent: 'space-between' }}>
-                            <View style={{ flexDirection: 'row', gap: 14, padding: 9, paddingRight: 18, paddingLeft: 12, backgroundColor: theme.backgroundColors.main, borderRadius: 15, height: 39, maxWidth: 150, alignItems: 'center' }}>
+                            <View style={{ flexDirection: 'row', gap: 14, padding: 9, paddingRight: 18, paddingLeft: 12, backgroundColor: theme.backgroundColors.main, borderRadius: 15, height: 39, maxWidth: 300, alignItems: 'center' }}>
                                 <TouchableOpacity
                                     activeOpacity={1}
                                     onPress={async () => {
@@ -687,7 +696,7 @@ const Feed = ({ postsFrom, allPosts, following }) => {
                                     style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}
                                 >
                                     <Image style={{ width: 21, height: 21 }} source={liked[post.id] ? heartIconFilled : heartIcon} />
-                                    <Typography size={14} headline={true} weight='SemiBold'>{post.likes}</Typography>
+                                    <Typography size={14} headline={true} weight='SemiBold'>{formatNum(post.likes)}</Typography>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     activeOpacity={1}
@@ -697,7 +706,10 @@ const Feed = ({ postsFrom, allPosts, following }) => {
                                     style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}
                                 >
                                     <Image style={{ width: 19, height: 19 }} source={commentsIcon} />
-                                    <Typography size={14} headline={true} weight='SemiBold'>{post.comments.length}</Typography>
+                                    <Typography size={14} headline={true} weight='SemiBold'>
+                                        {/* {formatNum(post.comments.length)} */}
+                                        843
+                                    </Typography>
                                 </TouchableOpacity>
                             </View>
                             <Button onPress={() => {openUserSelection(post)}} width={39} height={39}>
