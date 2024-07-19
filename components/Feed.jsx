@@ -707,8 +707,7 @@ const Feed = ({ postsFrom, allPosts, following }) => {
                                 >
                                     <Image style={{ width: 19, height: 19 }} source={commentsIcon} />
                                     <Typography size={14} headline={true} weight='SemiBold'>
-                                        {/* {formatNum(post.comments.length)} */}
-                                        843
+                                        {formatNum(post.comments.length)}            
                                     </Typography>
                                 </TouchableOpacity>
                             </View>
