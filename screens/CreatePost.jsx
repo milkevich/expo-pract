@@ -8,7 +8,7 @@ import arrowIcon from '../assets/arrow-icon.png';
 import attachIcon from '../assets/attach-icon.png';
 import sendIcon from '../assets/send-icon.png';
 import sendIconDark from '../assets/send-icon-dark.png';
-import deleteIcon from '../assets/delete-icon.png';
+import deleteIcon from '../assets/cross-icon.png';
 import tagUserIcon from '../assets/tag-user-icon.png';
 import Input from '../UI/Input';
 import * as ImagePicker from 'expo-image-picker';
@@ -420,7 +420,7 @@ const CreatePost = () => {
                                 </Button>
                             </View>
                         </View>
-                        <Input value={postText} onChangeText={setPostText} multiline={true} placeholder='Enter text' />
+                        <Input value={postText} onChangeText={setPostText} multiline={true} height={100} placeholder='Enter text' />
                         <View style={styles.buttonContainer}>
                             <Button width={39} height={39} onPress={pickImage}>
                                 <Image style={styles.attachIcon} source={attachIcon} />

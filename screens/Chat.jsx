@@ -13,7 +13,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import Typography from '../UI/Typography';
 import shortid from 'shortid';
 import * as ImagePicker from 'expo-image-picker';
-import { TapGestureHandler, State } from 'react-native-gesture-handler';
+import { TapGestureHandler, State, FlatList } from 'react-native-gesture-handler';
 import * as Haptics from 'expo-haptics';
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import crossIcon from '../assets/plus-icon-black.png';
@@ -24,6 +24,10 @@ import stopRecIcon from '../assets/stop-icon.png'
 import deleteIcon from '../assets/cross-icon.png'
 import playIcon from '../assets/play-icon.png'
 import pauseIcon from '../assets/pause-icon.png'
+import playIconLight from '../assets/play-icon-light.png'
+import pauseIconLight from '../assets/pause-icon-light.png'
+import { format, isBefore, subDays, subYears } from 'date-fns';
+import Paginator from '../components/Paginator';
 
 const { height, width } = Dimensions.get('window');
 
@@ -62,10 +66,42 @@ const formatTime = (timestamp) => {
         const minutes = date.getMinutes();
         const ampm = hours >= 12 ? 'PM' : 'AM';
         hours = hours % 12;
-        hours = hours ? hours : 12;
+        hours = hours ? 12 : hours;
         const strTime = `${hours}:${minutes < 10 ? '0' : ''}${minutes} ${ampm}`;
         return strTime;
     }
+};
+
+const getRelativeTime = (date) => {
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+
+    if (isBefore(date, subYears(now, 1))) {
+        return format(date, 'MMMM d, yyyy');
+    }
+
+    if (isBefore(date, subDays(now, 7))) {
+        return format(date, 'MMMM d');
+    }
+
+    const intervals = [
+        { label: 'year', seconds: 31536000 },
+        { label: 'month', seconds: 2592000 },
+        { label: 'week', seconds: 604800 },
+        { label: 'day', seconds: 86400 },
+        { label: 'hour', seconds: 3600 },
+        { label: 'minute', seconds: 60 },
+        { label: 'second', seconds: 1 },
+    ];
+
+    for (const interval of intervals) {
+        const count = Math.floor(diffInSeconds / interval.seconds);
+        if (count >= 1) {
+            return `${count} ${interval.label}${count > 1 ? 's' : ''} ago`;
+        }
+    }
+
+    return 'just now';
 };
 
 const uploadImage = async (uri) => {
@@ -122,6 +158,7 @@ const Chat = () => {
     const [recordedMessagePlaying, setRecordedMessagePlaying] = useState(false);
     const [playingMessageId, setPlayingMessageId] = useState(null);
     const [sound, setSound] = useState(null);
+    const scrollX = useRef(new Animated.Value(0)).current;
 
     async function startRecording() {
         try {
@@ -151,7 +188,6 @@ const Chat = () => {
             waveform: waveform
         });
 
-        // Set up playback status update
         sound.setOnPlaybackStatusUpdate((status) => {
             if (status.isLoaded) {
                 setRecordedMessagePlaying(status.isPlaying);
@@ -278,16 +314,16 @@ const Chat = () => {
         if (newMessageText.trim() || photos.length > 0 || recordedMessage !== null) {
             const chatRef = doc(db, 'chats', chatId);
             const messageId = shortid.generate();
-    
+
             const photoUrls = await Promise.all(photos.map(photo => uploadImage(photo.uri)));
-    
+
             let voiceMessageUrl = null;
             if (recordedMessage !== null) {
                 const response = await fetch(recordedMessage.file);
                 const blob = await response.blob();
                 const storageRef = ref(storage, `voiceMessages/${shortid.generate()}`);
                 const uploadTask = uploadBytesResumable(storageRef, blob);
-    
+
                 voiceMessageUrl = await new Promise((resolve, reject) => {
                     uploadTask.on(
                         'state_changed',
@@ -311,7 +347,7 @@ const Chat = () => {
                     );
                 });
             }
-    
+
             await runTransaction(db, async (transaction) => {
                 const chatDoc = await transaction.get(chatRef);
                 if (!chatDoc.exists()) {
@@ -324,17 +360,17 @@ const Chat = () => {
                     date: Timestamp.now(),
                     liked: false,
                     photos: photoUrls,
-                    voiceMessage: voiceMessageUrl, // Store the voice message URL
-                    waveform: recordedMessage ? recordedMessage.waveform : null, // Store the waveform data
+                    voiceMessage: voiceMessageUrl,
+                    waveform: recordedMessage ? recordedMessage.waveform : null,
                     duration: recordedMessage ? recordedMessage.duration : null,
                 };
                 const newMessages = [...chatDoc.data().messages, newMessage];
                 transaction.update(chatRef, { messages: newMessages });
             });
-    
+
             setNewMessageText('');
             setPhotos([]);
-            setRecordedMessage(null); // Clear the recorded message after sending
+            setRecordedMessage(null);
             scrollViewRef.current?.scrollToEnd({ animated: true });
         }
     }, 500);
@@ -459,14 +495,12 @@ const Chat = () => {
             alignItems: 'center',
             justifyContent: 'space-between',
             width: '70%',
-            backgroundColor: theme.backgroundColors.main,
             borderRadius: 15,
             paddingRight: 15,
             paddingLeft: 5,
             height: 39,
         },
         waveformBar: {
-            backgroundColor: theme.colors.main,
             width: 3,
             borderRadius: 2,
         },
@@ -474,23 +508,149 @@ const Chat = () => {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
-            backgroundColor: theme.backgroundColors.main,
-            borderRadius: 15,
+            backgroundColor: theme.colors.main,
+            borderRadius: 20,
             paddingRight: 15,
             paddingLeft: 5,
-            height: 39,
-            marginTop: 10,
+            height: 59,
             maxWidth: 250,
             alignSelf: 'flex-end',
             flexShrink: 1,
             flexGrow: 0,
-            padding: 17
+            padding: 17,
+            marginTop: -20
+        },
+        voiceMessageContainerSecond: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            backgroundColor: theme.backgroundColors.secondary,
+            borderRadius: 20,
+            paddingRight: 15,
+            paddingLeft: 5,
+            height: 59,
+            maxWidth: 250,
+            alignSelf: 'flex-start',
+            flexShrink: 1,
+            flexGrow: 0,
+            marginTop: -20
+        },
+        postContainerMain: {
+            padding: 17,
+            backgroundColor: '#fff',
+            borderRadius: 20,
+            marginBottom: 5,
+            gap: 17,
+            maxWidth: 300,
+            alignSelf: 'flex-end',
+            flexShrink: 1,
+            flexGrow: 0,
+            maxHeight: 400,
+        },
+        postContainerSecond: {
+            padding: 17,
+            backgroundColor: '#fff',
+            borderRadius: 20,
+            marginBottom: 5,
+            gap: 17,
+            maxWidth: 300,
+            alignSelf: 'flex-start',
+            flexShrink: 1,
+            flexGrow: 0,
+            maxHeight: 400,
+        },
+        authorContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: 10,
+            justifyContent: 'space-between',
+        },
+        authorImage: {
+            width: 39,
+            height: 39,
+            borderRadius: 15,
+            marginRight: 10,
+        },
+        authorDetails: {
+            flexDirection: 'column',
+            marginLeft: 5,
+        },
+        postText: {
+            fontSize: 14,
+            color: '#333',
+            marginTop: -5,
+            fontWeight: 'regular'
+        },
+        userImageWrapper: {
+            width: 25,
+            height: 25,
+            borderRadius: 10.5,
+            position: 'absolute',
+            left: 22.5,
+            bottom: -3,
+            borderWidth: 3,
+            borderColor: theme.backgroundColors.main2,
+            backgroundColor: theme.backgroundColors.main2,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        userImage: {
+            width: 19.5,
+            height: 19.5,
+            borderRadius: 7.5,
+        },
+        imagePreview: {
+            maxWidth: 320,
+            maxHeight: 400,
+            width: '100%',
+            height: '100%',
+            borderRadius: 15,
+        },
+        paginatorContainer: {
+            position: 'absolute',
+            bottom: -35.5,
+            width: '100%',
+            alignItems: 'center',
         },
     });
 
     const handleNavigateToCollaborator = (userId) => {
         navigation.navigate('UsersProfile', { userId })
     }
+
+    const handleViewableItemsChanged = useRef(({ viewableItems }) => {
+        if (viewableItems.length > 0) {
+            const { width, height } = viewableItems[0].item;
+            if (width && height) {
+                setAspectRatio(width / height);
+            }
+        }
+    }).current;
+
+    const viewabilityConfig = useRef({
+        viewAreaCoveragePercentThreshold: 50,
+    }).current;
+
+    const renderItem = ({ item, index, post }) => (
+        <View key={index} style={{ position: 'relative' }}>
+            <Image
+                style={[
+                    styles.imagePreview,
+                    {
+                        aspectRatio: aspectRatio || 1,
+                        minWidth: 266,
+                        maxWidth: 266,
+                        height: 310,
+                        borderTopRightRadius: index + 1 === post.imgs?.length ? 15 : 0,
+                        borderBottomRightRadius: index + 1 === post.imgs?.length ? 15 : 0,
+                        borderBottomLeftRadius: index === 0 ? 15 : 0,
+                        borderTopLeftRadius: index === 0 ? 15 : 0,
+                    },
+                ]}
+                source={{ uri: item }}
+            />
+        </View>
+    );
 
     return (
         <View style={styles.container}>
@@ -555,18 +715,86 @@ const Chat = () => {
                                         </View>
                                         {message.voiceMessage && (
                                             <View style={message.senderId === user.uid ? styles.voiceMessageContainerMain : styles.voiceMessageContainerSecond}>
-                                                <Button width={39} height={39} onPress={() => playPauseHandler(message.voiceMessage, message.id)}>
-                                                    <Image style={{ width: 21, height: 21, marginTop: -5 }} source={playingMessageId === message.id && recordedMessagePlaying ? pauseIcon : playIcon} />
+                                                <Button color={message.senderId === user.uid ? theme.colors.main : theme.backgroundColors.secondary} transparent={true} width={39} height={39} onPress={() => playPauseHandler(message.voiceMessage, message.id)}>
+                                                    <Image style={{ width: 21, height: 21, marginTop: -5 }} source={message.senderId === user.uid ? (playingMessageId === message.id && recordedMessagePlaying ? pauseIconLight : playIconLight) : (playingMessageId === message.id && recordedMessagePlaying ? pauseIcon : playIcon)} />
                                                 </Button>
                                                 <View style={styles.waveformContainer}>
                                                     {message.waveform && message.waveform.map((value, index) => (
-                                                        <View key={index} style={[styles.waveformBar, { height: value * 0.25, minHeight: 5 }]} />
+                                                        <View key={index} style={[styles.waveformBar, { height: value * 0.25, minHeight: 5, backgroundColor: message.senderId === user.uid ? theme.backgroundColors.main2 : theme.colors.main }]} />
                                                     ))}
                                                 </View>
-                                                <Text>{message.duration}</Text>
+                                                <Text style={{ color: message.senderId === user.uid ? 'white' : 'black' }}>{message.duration}</Text>
                                             </View>
                                         )}
-                                        <View style={[message.senderId === user.uid ? styles.mainUserMessage : styles.secondUserMessage, { display: message.text !== '' ? 'flex' : 'none', marginBottom: message.text === '' && message.photos.length > 0 && 0, marginTop: message.photos?.length === 0 ? -30 : 0 }]}>
+                                        {message.post && (
+                                            <View style={message.senderId === user.uid ? styles.postContainerMain : styles.postContainerSecond}>
+                                                {message.post.mainUserDetails && (
+                                                    <View style={styles.authorContainer}>
+                                                        <View style={{ display: 'flex', flexDirection: 'row' }}>
+                                                            <Image style={styles.authorImage} source={{ uri: message.post.mainUserDetails.photoURL || userIcon }} />
+                                                            {message.post.collaboratorDetails?.photoURL && (
+                                                                <View style={styles.userImageWrapper}>
+                                                                    <Image style={{ width: 19.5, height: 19.5, borderRadius: 7.5 }} source={{ uri: message.post.collaboratorDetails.photoURL || userIcon }} />
+                                                                </View>
+                                                            )}
+                                                            <View style={styles.authorDetails}>
+                                                                <View style={{ flexDirection: 'row' }}>
+                                                                    <TouchableOpacity
+                                                                        activeOpacity={1}
+                                                                        onPress={() => {
+                                                                            if (message.post.mainUserDetails && message.post.mainUserDetails?.uid !== user.uid) {
+                                                                                handleNavigateToCollaborator(message.post.mainUserDetails?.id);
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        <Typography headline={true} size={16}>
+                                                                            {message.post.collaboratorDetails ? `${message.post.mainUserDetails?.firstName} and` : `${message.post.mainUserDetails?.firstName} ${message.post.mainUserDetails?.lastName}`}
+                                                                        </Typography>
+                                                                    </TouchableOpacity>
+                                                                    <TouchableOpacity
+                                                                        activeOpacity={1}
+                                                                        onPress={() => {
+                                                                            if (message.post.collaboratorDetails && message.post.collaboratorDetails?.uid !== user.uid) {
+                                                                                handleNavigateToCollaborator(message.post.collaboratorDetails?.id);
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        <Typography headline={true} size={16}>
+                                                                            {message.post.collaboratorDetails ? ` ${message.post.collaboratorDetails?.firstName}` : ``}
+                                                                        </Typography>
+                                                                    </TouchableOpacity>
+                                                                </View>
+                                                                <Typography weight='Medium' headline={false} size={14}>{getRelativeTime(new Date(message.post.date.seconds * 1000))}</Typography>
+                                                            </View>
+                                                        </View>
+                                                    </View>
+                                                )}
+                                                {message.post.imgs && message.post.imgs.length > 0 && (
+                                                    <View style={{ borderRadius: 15, overflow: 'hidden', marginTop: -10, marginBottom: message.post.text === '' && -30, height: 310 }}>
+                                                        <FlatList
+                                                            horizontal
+                                                            data={message.post.imgs}
+                                                            renderItem={({ item, index }) => renderItem({ item, index, post: message.post })}
+                                                            keyExtractor={(item, index) => index.toString()}
+                                                            showsHorizontalScrollIndicator={false}
+                                                            pagingEnabled={message.post.imgs.length !== 1}
+                                                            bounces={message.post.imgs.length !== 1}
+                                                            onViewableItemsChanged={handleViewableItemsChanged}
+                                                            viewabilityConfig={viewabilityConfig}
+                                                            onScroll={Animated.event(
+                                                                [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+                                                                { useNativeDriver: false }
+                                                            )}
+                                                        />
+                                                        <View style={styles.paginatorContainer}>
+                                                            <Paginator data={message.post.imgs} scrollX={scrollX} />
+                                                        </View>
+                                                    </View>
+                                                )}
+                                                <Text style={styles.postText}>{message.post.text}</Text>
+                                            </View>
+                                        )}
+                                        <View style={[message.senderId === user.uid ? styles.mainUserMessage : styles.secondUserMessage, { display: message.text !== '' && message.text ? 'flex' : 'none', marginBottom: message.text === '' && message.photos.length > 0 && 0, marginTop: message.photos?.length === 0 ? -30 : 0 }]}>
                                             <Typography textAlign='left' color={message.senderId === user.uid ? theme.colors.main2 : theme.colors.main}>
                                                 {message.text}
                                             </Typography>

@@ -8,7 +8,7 @@ import Button from '../UI/Button';
 import arrow from '../assets/arrow-icon.png';
 import Typography from '../UI/Typography';
 import userIcon from '../assets/user-placeholder-icon.jpeg';
-import plusIcon from '../assets/plus-icon.png';
+import plusIcon from '../assets/plus-icon-black.png';
 import { useUser } from '../contexts/AuthContext';
 import { createUserWithEmailAndPassword, updateProfile } from '@firebase/auth';
 import { auth, db, storage } from '../firebaseConfig';
@@ -162,7 +162,6 @@ const SignUpScreen = () => {
 
                 uploadTask.on('state_changed',
                     (snapshot) => {
-                        //  add progress 
                     },
                     (error) => {
                         console.error("Error uploading file:", error);

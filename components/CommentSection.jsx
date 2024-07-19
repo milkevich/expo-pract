@@ -5,12 +5,14 @@ import Button from '../UI/Button';
 import { View, StyleSheet, Dimensions, Image, ScrollView, Text } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import crossIcon from '../assets/plus-icon-black.png';
-import { doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
+import { doc, updateDoc, arrayUnion, arrayRemove, getDoc, FieldValue } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import sendIcon from '../assets/send-icon.png';
 import userIcon from '../assets/user-placeholder-icon.jpeg';
 import { useUser } from '../contexts/AuthContext';
 import { format, isBefore, subDays, subYears } from 'date-fns';
+import deleteIcon from '../assets/cross-icon.png';
+import shortid from 'shortid';
 
 const CommentSection = ({ post, onClose, author }) => {
     const theme = useTheme();
@@ -142,6 +144,7 @@ const CommentSection = ({ post, onClose, author }) => {
             text: commentText,
             authorId: user.uid,
             timestamp: new Date(),
+            id: shortid.generate(),
         };
 
         try {
@@ -235,19 +238,14 @@ const CommentSection = ({ post, onClose, author }) => {
                     </View>
                     {comments.map((comment, index) => (
                         <View key={index} style={styles.commentContainer}>
-                            <View style={{ display: 'flex', flexDirection: 'row' }}>
+                            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                                 <Image source={{ uri: comment.authorPhotoURL }} style={styles.userImage} />
                                 <View style={styles.commentText}>
                                     <Typography weight='SemiBold' headline={true} size={14}>{comment.authorName}</Typography>
                                     <Typography weight='Medium' headline={false} size={12}>{getRelativeTime(new Date(comment.timestamp.seconds * 1000))}</Typography>
                                 </View>
-                                {comment.authorId === user.uid &&
-                                    <Button width={39} height={39}>
-                                        <View><Text style={{ letterSpacing: 1.1, marginLeft: 2, fontWeight: 900, fontSize: 12 }}>...</Text></View>
-                                    </Button>
-                                }
                             </View>
-                            <View style={{marginTop: 15}}>
+                            <View style={{ marginTop: 15 }}>
                                 <Typography weight='Medium' headline={true} size={14}>{comment.text}</Typography>
                             </View>
                         </View>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Dimensions, Animated, Modal, Alert } from 'react-native';
+import { collection, query, where, onSnapshot, getDocs, getDoc, doc, increment, updateDoc, deleteDoc, arrayUnion, arrayRemove, orderBy, setDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
-import { collection, query, where, onSnapshot, getDoc, doc, increment, updateDoc, deleteDoc, arrayUnion, arrayRemove, orderBy } from 'firebase/firestore';
 import { useUser } from '../contexts/AuthContext';
 import Typography from '../UI/Typography';
 import { useTheme } from '../contexts/ThemeContext';
@@ -13,14 +13,12 @@ import heartIconFilled from '../assets/heart-icon-filled.png';
 import commentsIcon from '../assets/comment-icon.png';
 import Paginator from '../components/Paginator';
 import { format, isBefore, subDays, subYears } from 'date-fns';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import CommentSection from './CommentSection';
-import { useBackdrop } from '../contexts/BackDropContext';
-import { useReload } from '../contexts/ReloadContext';
-import { useNavigation } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
 import Skeleton from '../UI/Skeleton';
-import deleteIcon from '../assets/delete-icon.png';
+import { useNavigation } from '@react-navigation/native';
+import CommentSection from './CommentSection';
+import { useBackdrop } from '../contexts/BackDropContext';
+import shortid from 'shortid';
 
 const { width, height } = Dimensions.get('window');
 
@@ -31,15 +29,22 @@ const Feed = ({ postsFrom, allPosts, following }) => {
     const theme = useTheme();
     const scrollX = useRef(new Animated.Value(0)).current;
     const [liked, setLiked] = useState({});
-    const { showBackdrop, hideBackdrop } = useBackdrop();
     const [selectedPostId, setSelectedPostId] = useState(null);
     const [commentSectionShown, setCommentSectionShown] = useState(false);
     const [authorDetails, setAuthorDetails] = useState(null);
-    const { reload, setReload } = useReload();
+    const [reload, setReload] = useState(false);
     const navigation = useNavigation();
     const [followings, setFollowings] = useState([]);
     const [userData, setUserData] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
+    const [shareVisible, setShareVisible] = useState(false);
+    const [chats, setChats] = useState([]);
+    const [chatUsersDetails, setChatUsersDetails] = useState({});
+    const [users, setUsers] = useState([]);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [userSelectionVisible, setUserSelectionVisible] = useState(false);
+    const { showBackdrop, hideBackdrop } = useBackdrop();
+    const [selectedPost, setSelectedPost] = useState(null)
 
     const getRelativeTime = (date) => {
         const now = new Date();
@@ -103,7 +108,7 @@ const Feed = ({ postsFrom, allPosts, following }) => {
                 } else if (following) {
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     const userDetails = userDoc.exists() ? userDoc.data() : null;
-    
+
                     if (userDetails && userDetails.followings && userDetails.followings.length > 0) {
                         postsQuery = query(collection(db, 'posts'), where('author', 'array-contains-any', userDetails.followings), orderBy('date', 'desc'));
                     } else {
@@ -112,21 +117,21 @@ const Feed = ({ postsFrom, allPosts, following }) => {
                         return;
                     }
                 }
-    
+
                 const unsubscribe = onSnapshot(postsQuery, async (snapshot) => {
                     if (!snapshot.empty) {
                         const postsList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                         console.log("Fetched posts: ", postsList);
-    
+
                         const updatedPostsList = await Promise.all(postsList.map(async post => {
                             const mainUserDetails = await fetchUserDetails(post.author[0]);
                             const collaboratorDetails = post.author.length > 1 ? await fetchUserDetails(post.author[1]) : null;
                             return { ...post, mainUserDetails, collaboratorDetails };
                         }));
-    
+
                         console.log("Updated posts list: ", updatedPostsList);
                         setPosts(updatedPostsList);
-    
+
                         const likedStatus = {};
                         updatedPostsList.forEach(post => {
                             if (post.likedBy) {
@@ -141,19 +146,17 @@ const Feed = ({ postsFrom, allPosts, following }) => {
                         setPosts([]);
                     }
                 });
-    
+
                 return unsubscribe;
             } catch (error) {
                 console.error('Error fetching user posts:', error);
             }
         };
-    
+
         if (user && user.uid) {
             fetchUserPosts();
         }
     }, [user, postsFrom, reload, allPosts, following]);
-    
-    
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -168,6 +171,22 @@ const Feed = ({ postsFrom, allPosts, following }) => {
         };
 
         fetchUserData();
+    }, [user.uid]);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const usersCollectionRef = collection(db, 'users');
+                const usersListQuery = query(usersCollectionRef, where('uid', '!=', user.uid));
+                const querySnapshot = await getDocs(usersListQuery);
+                const usersList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                setUsers(usersList);
+            } catch (error) {
+                console.error('Error fetching users: ', error);
+            }
+        };
+
+        fetchUsers();
     }, [user.uid]);
 
     const fetchUserDetails = async (userId) => {
@@ -213,6 +232,33 @@ const Feed = ({ postsFrom, allPosts, following }) => {
                 source={{ uri: item }}
             />
         </View>
+    );
+
+    const handleToggleSelectedUser = (item) => {
+        if (selectedUser?.id === item.id) {
+            setSelectedUser(null);
+        } else {
+            setSelectedUser(item);
+        }
+    };
+
+    const renderUserItem = ({ item }) => (
+        <TouchableOpacity onPress={() => handleToggleSelectedUser(item)}>
+            <View style={[styles.userContainer, { opacity: selectedUser?.id !== item.id && selectedUser !== null ? 0.3 : 1 }]}>
+                <View style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
+                    <Image source={{ uri: item.photoURL }} style={styles.userImage} />
+                    <View>
+                        <Typography weight='SemiBold' size={16} color={theme.colors.main}>{item.firstName} {item.lastName}</Typography>
+                        <Typography weight='Medium' size={14} color={theme.colors.third}>@{item.username}</Typography>
+                    </View>
+                </View>
+                <Button onPress={() => handleToggleSelectedUser(item)} width={39} height={39}>
+                    {selectedUser?.id === item.id &&
+                        <View style={{ width: 21, height: 21, backgroundColor: theme.colors.third, borderRadius: 7.5, marginTop: -6 }} />
+                    }
+                </Button>
+            </View>
+        </TouchableOpacity>
     );
 
     const styles = StyleSheet.create({
@@ -288,18 +334,56 @@ const Feed = ({ postsFrom, allPosts, following }) => {
             bottom: -180,
             height: 150
         },
+        shareModal: {
+            backgroundColor: theme.backgroundColors.main2,
+            padding: 21,
+            borderRadius: 35,
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            position: 'absolute',
+            width: width,
+            bottom: -215,
+            height: height * 0.5
+        },
+        userContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            padding: 17,
+            backgroundColor: theme.backgroundColors.main2,
+            borderRadius: 15,
+            gap: 5,
+            justifyContent: 'space-between',
+            marginBottom: 10,
+        },
+        userImage: {
+            width: 39,
+            height: 39,
+            borderRadius: 15,
+            marginRight: 10,
+        },
+        userListContainer: {
+            flex: 1,
+            padding: 21,
+            backgroundColor: theme.backgroundColors.main,
+            height: height * 0.65,
+            position: 'absolute',
+            width: '100%',
+            bottom: 0,
+            borderRadius: 35,
+            gap: 10,
+        }
     });
 
     const handleLikePost = async (postId) => {
         try {
             await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    
+
             const isLiked = liked[postId];
             const updatedLikes = { ...liked, [postId]: !isLiked };
             const postIndex = posts.findIndex(post => post.id === postId);
             const updatedPosts = [...posts];
             const post = updatedPosts[postIndex];
-    
+
             if (isLiked) {
                 post.likes -= 1;
                 post.likedBy = post.likedBy.filter(uid => uid !== user.uid);
@@ -312,39 +396,38 @@ const Feed = ({ postsFrom, allPosts, following }) => {
             }
             setLiked(updatedLikes);
             setPosts(updatedPosts);
-    
+
             const postRef = doc(db, 'posts', postId);
             const likesUpdate = isLiked ? increment(-1) : increment(1);
-    
+
             await updateDoc(postRef, {
                 likes: likesUpdate,
                 likedBy: isLiked ? arrayRemove(user.uid) : arrayUnion(user.uid)
             });
-    
+
         } catch (error) {
             console.error('Error liking post:', error);
             alert('Something went wrong');
         }
     };
-    
 
     const handleCloseCommentSection = async () => {
-        hideBackdrop();
         setCommentSectionShown(false);
         setSelectedPostId(null);
+        hideBackdrop()
     };
 
     const handleOpenCommentsSection = async (postId, author) => {
         setSelectedPostId(postId);
         setAuthorDetails(author);
-        showBackdrop();
         setCommentSectionShown(true);
+        showBackdrop()
     };
 
     const handleNavigateToCollaborator = async (userId) => {
-        if(userId !== user.uid) {
+        if (userId !== user.uid) {
             await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            navigation.navigate('UsersProfile', { userId }); 
+            navigation.navigate('UsersProfile', { userId });
         }
     };
 
@@ -359,7 +442,7 @@ const Feed = ({ postsFrom, allPosts, following }) => {
 
                     if (JSON.stringify(newFollowings) !== JSON.stringify(followings)) {
                         setFollowings(newFollowings);
-                        setReload(prev => !prev); 
+                        setReload(prev => !prev);
                     }
                 }
             } catch (error) {
@@ -374,27 +457,85 @@ const Feed = ({ postsFrom, allPosts, following }) => {
 
     const handleDeletePost = async (post) => {
         const postRef = doc(db, 'posts', post?.id);
-    
+
         try {
             await deleteDoc(postRef);
-            hideBackdrop();
             setModalVisible(false);
-            
+            hideBackdrop()
+
             const mainUserRef = doc(db, 'users', post.author[0]);
             await updateDoc(mainUserRef, {
                 posts: increment(-1)
             });
-    
+
             if (post.author.length > 1) {
                 const collaboratorRef = doc(db, 'users', post.author[1]);
                 await updateDoc(collaboratorRef, {
                     posts: increment(-1)
                 });
             }
-    
+
         } catch (error) {
             console.error('Error deleting post:', error);
             Alert.alert('Error', 'Unable to delete the post. Please try again.');
+        }
+    };
+
+    const openUserSelection = (post) => {
+        setUserSelectionVisible(true);
+        showBackdrop()
+        setSelectedPost(post)
+    };
+
+    const closeShareList = () => {
+        setUserSelectionVisible(false);
+        hideBackdrop()
+    }
+
+    const sharePost = async () => {
+        if (selectedPost && selectedUser) {
+            try {
+                const chatId1 = user.uid + selectedUser.id;
+                const chatId2 = selectedUser.id + user.uid;
+                const chatRef1 = doc(db, 'chats', chatId1);
+                const chatRef2 = doc(db, 'chats', chatId2);
+    
+                const chatDoc1 = await getDoc(chatRef1);
+                const chatDoc2 = await getDoc(chatRef2);
+    
+                const messageId = shortid.generate();
+                const message = {
+                    senderId: user.uid,
+                    date: Timestamp.now(),
+                    liked: false,
+                    id: messageId,
+                    post: selectedPost
+                };
+    
+                if (chatDoc1.exists()) {
+                    await updateDoc(chatRef1, {
+                        messages: arrayUnion(message)
+                    });
+                } else if (chatDoc2.exists()) {
+                    await updateDoc(chatRef2, {
+                        messages: arrayUnion(message)
+                    });
+                } else {
+                    await setDoc(chatRef1, {
+                        messages: [message],
+                        participants: [user.uid, selectedUser.id]
+                    });
+                }
+    
+                setSelectedUser(null);
+                setSelectedPost(null);
+                setUserSelectionVisible(false);
+                hideBackdrop();
+                Alert.alert("Success", "Post shared successfully!");
+            } catch (error) {
+                console.error("Error sharing post: ", error);
+                Alert.alert("Error", "Failed to share post. Please try again.");
+            }
         }
     };
     
@@ -428,7 +569,10 @@ const Feed = ({ postsFrom, allPosts, following }) => {
                         transparent={true}
                         visible={modalVisible}
                         animationType='slide'
-                        onRequestClose={() => setModalVisible(false)}
+                        onRequestClose={() => {
+                            setModalVisible(false) 
+                            hideBackdrop()
+                        }}
                     >
                         <View style={{ height: height * 0.75 }}>
                             <View style={styles.modalContent}>
@@ -440,6 +584,25 @@ const Feed = ({ postsFrom, allPosts, following }) => {
                             </View>
                         </View>
                     </Modal>
+                    <Modal
+                        transparent={true}
+                        visible={userSelectionVisible}
+                        animationType='slide'
+                        onRequestClose={closeShareList}
+                    >
+                        <View style={styles.userListContainer}>
+                            <FlatList
+                                data={users}
+                                renderItem={renderUserItem}
+                                keyExtractor={item => item.id}
+                            />
+                            <View style={{ padding: 17, backgroundColor: theme.backgroundColors.main2, borderRadius: 20 }}>
+                                <Button highlight={selectedUser ? true : false} onPress={!selectedUser ? closeShareList : sharePost}>
+                                    {selectedUser ? 'Share' : 'Close'}
+                                </Button>
+                            </View>
+                        </View>
+                    </Modal>
                     <View style={styles.postContainer}>
                         {post.mainUserDetails && (
                             <View style={styles.authorContainer}>
@@ -447,7 +610,7 @@ const Feed = ({ postsFrom, allPosts, following }) => {
                                     <Image style={styles.authorImage} source={{ uri: post.mainUserDetails.photoURL || userIcon }} />
                                     {post.collaboratorDetails?.photoURL && (
                                         <View style={styles.userImageWrapper}>
-                                            <Image style={styles.userImage} source={{ uri: post.collaboratorDetails.photoURL || userIcon }} />
+                                            <Image style={{width: 19.5, height: 19.5, borderRadius: 7.5}} source={{ uri: post.collaboratorDetails.photoURL || userIcon }} />
                                         </View>
                                     )}
                                     <View style={styles.authorDetails}>
@@ -482,7 +645,7 @@ const Feed = ({ postsFrom, allPosts, following }) => {
                                 </View>
                                 {!allPosts && !following && postsFrom === user.uid &&
                                     <Button onPress={() => {
-                                        setModalVisible(!modalVisible)
+                                        setModalVisible(true);
                                         showBackdrop()
                                     }} width={39} height={39}>
                                         <View><Text style={{ letterSpacing: 1.1, marginLeft: 2, fontWeight: 900, fontSize: 12 }}>...</Text></View>
@@ -537,7 +700,7 @@ const Feed = ({ postsFrom, allPosts, following }) => {
                                     <Typography size={14} headline={true} weight='SemiBold'>{post.comments.length}</Typography>
                                 </TouchableOpacity>
                             </View>
-                            <Button width={39} height={39}>
+                            <Button onPress={() => {openUserSelection(post)}} width={39} height={39}>
                                 <Image style={{ width: 21, height: 21, marginBottom: -5 }} source={shareIcon} />
                             </Button>
                         </View>
@@ -555,7 +718,7 @@ const Feed = ({ postsFrom, allPosts, following }) => {
                         </View>
                     )}
         </View>
-    );    
+    );
 };
 
 export default Feed;

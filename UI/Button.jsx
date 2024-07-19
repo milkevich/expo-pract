@@ -10,7 +10,7 @@ const Button = ({ children, highlight, onPress, color, transparent, width, heigh
         buttonBg: {
             backgroundColor: color ? color : theme.backgroundColors.main,
             borderRadius: theme.other.borderRadius.btn,
-            borderColor: theme.backgroundColors.main,
+            borderColor: color ? color : theme.backgroundColors.main,
             borderWidth: '1px solid',
             height: height ? height : 46,
             justifyContent: 'center',
