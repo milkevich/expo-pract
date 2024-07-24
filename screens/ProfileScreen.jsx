@@ -19,6 +19,7 @@ export default function ProfileScreen() {
   const { user } = useUser();
   const navigation = useNavigation();
   const theme = useTheme();
+  const styles = createStyles(theme);
 
 
   useEffect(() => {
@@ -52,80 +53,6 @@ export default function ProfileScreen() {
       }
     };
   }, [user]);
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.backgroundColors.main,
-      paddingBottom: 30,
-      paddingTop: 49,
-    },
-    contentContainer: {
-      padding: 21,
-      backgroundColor: theme.backgroundColors.main,
-      display: 'flex',
-      gap: 15,
-      paddingBottom: 50,
-    },
-    profileContainer: {
-      padding: 17,
-      paddingBottom: 20,
-      backgroundColor: theme.backgroundColors.main2,
-      borderRadius: 20,
-    },
-    profileImageContainer: {
-      width: 83,
-      height: 83,
-      borderRadius: 30,
-      backgroundColor: theme.backgroundColors.secondary,
-      position: 'relative',
-    },
-    profileImage: {
-      width: 71,
-      height: 71,
-      borderWidth: 5,
-      borderColor: theme.backgroundColors.main2,
-      borderRadius: 25,
-      position: 'absolute',
-      top: 6,
-      left: 6,
-    },
-    buttonsContainer: {
-      padding: 17,
-      display: 'flex',
-      flexDirection: 'row',
-      gap: 15,
-      backgroundColor: theme.backgroundColors.main2,
-      borderRadius: 20,
-    },
-    shareContainer: {
-      padding: 17,
-      display: 'flex',
-      flexDirection: 'row',
-      gap: 17,
-      backgroundColor: theme.backgroundColors.main2,
-      borderRadius: 20,
-    },
-    shareContent: {
-      display: 'flex',
-      flexDirection: 'row',
-      minWidth: 318,
-      gap: 13,
-    },
-    shareImage: {
-      width: 39,
-      height: 39,
-      borderRadius: 15,
-    },
-    sendButton: {
-      position: 'absolute',
-      right: 0,
-    },
-    noPostsContainer: {
-      height: '100%',
-      justifyContent: 'center',
-    },
-  });
 
   const handleLogOut = () => {
     navigation.dispatch(
@@ -219,3 +146,78 @@ export default function ProfileScreen() {
     </View>
   );
 }
+
+
+const createStyles = (theme) => StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.backgroundColors.main,
+    paddingBottom: 30,
+    paddingTop: 49,
+  },
+  contentContainer: {
+    padding: 21,
+    backgroundColor: theme.backgroundColors.main,
+    display: 'flex',
+    gap: 15,
+    paddingBottom: 50,
+  },
+  profileContainer: {
+    padding: 17,
+    paddingBottom: 20,
+    backgroundColor: theme.backgroundColors.main2,
+    borderRadius: 20,
+  },
+  profileImageContainer: {
+    width: 83,
+    height: 83,
+    borderRadius: 30,
+    backgroundColor: theme.backgroundColors.secondary,
+    position: 'relative',
+  },
+  profileImage: {
+    width: 71,
+    height: 71,
+    borderWidth: 5,
+    borderColor: theme.backgroundColors.main2,
+    borderRadius: 25,
+    position: 'absolute',
+    top: 6,
+    left: 6,
+  },
+  buttonsContainer: {
+    padding: 17,
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 15,
+    backgroundColor: theme.backgroundColors.main2,
+    borderRadius: 20,
+  },
+  shareContainer: {
+    padding: 17,
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 17,
+    backgroundColor: theme.backgroundColors.main2,
+    borderRadius: 20,
+  },
+  shareContent: {
+    display: 'flex',
+    flexDirection: 'row',
+    minWidth: 318,
+    gap: 13,
+  },
+  shareImage: {
+    width: 39,
+    height: 39,
+    borderRadius: 15,
+  },
+  sendButton: {
+    position: 'absolute',
+    right: 0,
+  },
+  noPostsContainer: {
+    height: '100%',
+    justifyContent: 'center',
+  },
+});

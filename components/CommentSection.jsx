@@ -14,87 +14,14 @@ import { format, isBefore, subDays, subYears } from 'date-fns';
 import deleteIcon from '../assets/cross-icon.png';
 import shortid from 'shortid';
 
+const { height } = Dimensions.get('window');
+
 const CommentSection = ({ post, onClose, author }) => {
     const theme = useTheme();
-    const { height } = Dimensions.get('window');
     const { user } = useUser();
     const [comments, setComments] = useState([]);
     const [commentText, setCommentText] = useState('');
-
-    const styles = StyleSheet.create({
-        container: {
-            flex: 1,
-            padding: 21,
-            backgroundColor: theme.backgroundColors.main,
-            height: height * 0.75,
-            position: 'absolute',
-            width: '100%',
-            bottom: 0,
-            borderRadius: 35,
-            gap: 10,
-        },
-        contentContainer: {
-            backgroundColor: theme.backgroundColors.main,
-            display: 'flex',
-            gap: 15,
-            paddingTop: 60,
-        },
-        fixedHeader: {
-            position: 'absolute',
-            top: 7,
-            left: 0,
-            right: 0,
-            padding: 17,
-            backgroundColor: theme.backgroundColors.main2,
-            borderRadius: 20,
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 15,
-            alignItems: 'center',
-            zIndex: 10,
-            margin: 21,
-        },
-        fixedFooter: {
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 0,
-            padding: 17,
-            backgroundColor: theme.backgroundColors.main2,
-            borderRadius: 20,
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 15,
-            alignItems: 'center',
-            zIndex: 10,
-            margin: 21,
-            zIndex: 12
-        },
-        crossIcon: {
-            transform: [{ rotate: '135deg' }],
-            width: 21,
-            height: 21,
-            position: 'relative',
-            marginBottom: -5,
-            top: 9,
-            left: 9,
-        },
-        commentContainer: {
-            marginBottom: 10,
-            padding: 17,
-            backgroundColor: theme.backgroundColors.main2,
-            borderRadius: 15,
-        },
-        commentText: {
-            marginLeft: 10,
-            flex: 1,
-        },
-        userImage: {
-            width: 39,
-            height: 39,
-            borderRadius: 15,
-        },
-    });
+    const styles = createStyles(theme);
 
     const fetchComments = async () => {
         try {
@@ -257,3 +184,78 @@ const CommentSection = ({ post, onClose, author }) => {
 };
 
 export default CommentSection;
+
+const createStyles = (theme) => StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 21,
+        backgroundColor: theme.backgroundColors.main,
+        height: height * 0.75,
+        position: 'absolute',
+        width: '100%',
+        bottom: 0,
+        borderRadius: 35,
+        gap: 10,
+    },
+    contentContainer: {
+        backgroundColor: theme.backgroundColors.main,
+        display: 'flex',
+        gap: 15,
+        paddingTop: 60,
+    },
+    fixedHeader: {
+        position: 'absolute',
+        top: 7,
+        left: 0,
+        right: 0,
+        padding: 17,
+        backgroundColor: theme.backgroundColors.main2,
+        borderRadius: 20,
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 15,
+        alignItems: 'center',
+        zIndex: 10,
+        margin: 21,
+    },
+    fixedFooter: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        padding: 17,
+        backgroundColor: theme.backgroundColors.main2,
+        borderRadius: 20,
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 15,
+        alignItems: 'center',
+        zIndex: 10,
+        margin: 21,
+        zIndex: 12
+    },
+    crossIcon: {
+        transform: [{ rotate: '135deg' }],
+        width: 21,
+        height: 21,
+        position: 'relative',
+        marginBottom: -5,
+        top: 9,
+        left: 9,
+    },
+    commentContainer: {
+        marginBottom: 10,
+        padding: 17,
+        backgroundColor: theme.backgroundColors.main2,
+        borderRadius: 15,
+    },
+    commentText: {
+        marginLeft: 10,
+        flex: 1,
+    },
+    userImage: {
+        width: 39,
+        height: 39,
+        borderRadius: 15,
+    },
+});

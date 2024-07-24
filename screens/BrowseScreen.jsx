@@ -24,6 +24,8 @@ const BrowseScreen = () => {
     const { user } = useUser();
     const { reload } = useReload();
 
+    const styles = createStyles(theme);
+
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -116,52 +118,6 @@ const BrowseScreen = () => {
         );
     };
 
-    const styles = StyleSheet.create({
-        container: {
-            flex: 1,
-            backgroundColor: theme.backgroundColors.main,
-            padding: 21,
-            gap: 14,
-            paddingTop: 105,
-        },
-        userContainer: {
-            padding: 17,
-            backgroundColor: theme.backgroundColors.main2,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            borderRadius: 20,
-        },
-        userImage: {
-            width: 39,
-            height: 39,
-            borderRadius: 15,
-        },
-        userInfo: {
-            marginLeft: 10,
-        },
-        fixedHeader: {
-            position: 'absolute',
-            top: 38,
-            left: 0,
-            right: 0,
-            padding: 17,
-            backgroundColor: theme.backgroundColors.main2,
-            borderRadius: 20,
-            display: 'flex',
-            alignItems: 'center',
-            zIndex: 10,
-            margin: 21,
-            height: 132,
-        },
-        contentContainer: {
-            backgroundColor: theme.backgroundColors.main,
-            display: 'flex',
-            gap: 15,
-            paddingTop: 85,
-            width: '100%',
-        },
-    });
-
     return (
         <View style={styles.container}>
             <View style={styles.fixedHeader}>
@@ -199,3 +155,50 @@ const BrowseScreen = () => {
 };
 
 export default BrowseScreen;
+
+
+const createStyles = (theme) => StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: theme.backgroundColors.main,
+        padding: 21,
+        gap: 14,
+        paddingTop: 105,
+    },
+    userContainer: {
+        padding: 17,
+        backgroundColor: theme.backgroundColors.main2,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        borderRadius: 20,
+    },
+    userImage: {
+        width: 39,
+        height: 39,
+        borderRadius: 15,
+    },
+    userInfo: {
+        marginLeft: 10,
+    },
+    fixedHeader: {
+        position: 'absolute',
+        top: 38,
+        left: 0,
+        right: 0,
+        padding: 17,
+        backgroundColor: theme.backgroundColors.main2,
+        borderRadius: 20,
+        display: 'flex',
+        alignItems: 'center',
+        zIndex: 10,
+        margin: 21,
+        height: 132,
+    },
+    contentContainer: {
+        backgroundColor: theme.backgroundColors.main,
+        display: 'flex',
+        gap: 15,
+        paddingTop: 85,
+        width: '100%',
+    },
+});

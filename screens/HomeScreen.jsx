@@ -20,6 +20,7 @@ export default function HomeScreen() {
   const indicatorPosition = useRef(new Animated.Value(0)).current;
   const forYouAnim = useRef(new Animated.Value(0)).current;
   const followingAnim = useRef(new Animated.Value(width)).current;
+  const styles = createStyles(theme);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -98,42 +99,6 @@ export default function HomeScreen() {
     }
   };
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      padding: 21,
-      backgroundColor: theme.backgroundColors.main,
-      height: height,
-      width: '100%',
-      gap: 10,
-    },
-    contentContainer: {
-      backgroundColor: theme.backgroundColors.main,
-      display: 'flex',
-      gap: 15,
-      paddingTop: 65,
-      paddingBottom: 70,
-      minHeight: height,
-    },
-    tabIndicator: {
-      position: 'absolute',
-      width: 149,
-      backgroundColor: theme.colors.main,
-      height: 39,
-      borderRadius: 15,
-      top: 17,
-    },
-    feedContainer: {
-      width: '100%',
-      height: '100%',
-      position: 'absolute',
-    },
-    animatedView: {
-      width: '100%',
-      height: '100%',
-    }
-  });
-
   return (
     <View style={styles.container}>
       <View style={{ height: 36 }} />
@@ -161,3 +126,39 @@ export default function HomeScreen() {
     </View>
   );
 }
+
+const createStyles = (theme) => StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 21,
+    backgroundColor: theme.backgroundColors.main,
+    height: height,
+    width: '100%',
+    gap: 10,
+  },
+  contentContainer: {
+    backgroundColor: theme.backgroundColors.main,
+    display: 'flex',
+    gap: 15,
+    paddingTop: 65,
+    paddingBottom: 70,
+    minHeight: height,
+  },
+  tabIndicator: {
+    position: 'absolute',
+    width: 149,
+    backgroundColor: theme.colors.main,
+    height: 39,
+    borderRadius: 15,
+    top: 17,
+  },
+  feedContainer: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+  },
+  animatedView: {
+    width: '100%',
+    height: '100%',
+  }
+});

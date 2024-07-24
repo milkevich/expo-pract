@@ -28,6 +28,7 @@ const LogInScreen = () => {
   const slideAnim = useRef(new Animated.Value(900)).current;
   const errorSlideAnim = useRef(new Animated.Value(-30)).current;
   const errorFadeAnim = useRef(new Animated.Value(0)).current;
+  const styles = createStyles(theme);
 
   const submit = async () => {
     if (username && password) {
@@ -130,62 +131,6 @@ const LogInScreen = () => {
     }, [])
   );
 
-  const styles = StyleSheet.create({
-    mainContainer: {
-      flex: 1,
-      backgroundColor: theme.backgroundColors.main2,
-    },
-    headerContainer: {
-      position: "relative",
-      height: 400,
-      paddingTop: 80,
-      backgroundColor: theme.backgroundColors.secondary,
-      padding: 21,
-    },
-    formContainer: {
-      padding: 21,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 20,
-      borderRadius: 35,
-    },
-    getStartedContainer: {
-      height: '100%',
-      width: '100%',
-      position: 'absolute',
-      bottom: 0,
-      backgroundColor: theme.backgroundColors.main2,
-      borderRadius: theme.other.borderRadius.container,
-      shadowOffset: 1,
-      shadowOpacity: 0.3,
-      zIndex: 3,
-      padding: 41,
-    },
-    getStartedContent: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 25,
-    },
-    backdrop: {
-      height: '100%',
-      width: '100%',
-      backgroundColor: 'rgba(0, 0, 0, 0.45)',
-      position: 'absolute',
-      zIndex: 2,
-    },
-    googleButtonContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: -5,
-    },
-    googleIcon: {
-      width: 20,
-      height: 20,
-      marginRight: 10,
-    },
-  });
-
   const handleNext = () => {
     const namePattern = /^\s*$/;
 
@@ -285,3 +230,59 @@ const LogInScreen = () => {
 };
 
 export default LogInScreen;
+
+const createStyles = (theme) => StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+    backgroundColor: theme.backgroundColors.main2,
+  },
+  headerContainer: {
+    position: "relative",
+    height: 400,
+    paddingTop: 80,
+    backgroundColor: theme.backgroundColors.secondary,
+    padding: 21,
+  },
+  formContainer: {
+    padding: 21,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 20,
+    borderRadius: 35,
+  },
+  getStartedContainer: {
+    height: '100%',
+    width: '100%',
+    position: 'absolute',
+    bottom: 0,
+    backgroundColor: theme.backgroundColors.main2,
+    borderRadius: theme.other.borderRadius.container,
+    shadowOffset: 1,
+    shadowOpacity: 0.3,
+    zIndex: 3,
+    padding: 41,
+  },
+  getStartedContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 25,
+  },
+  backdrop: {
+    height: '100%',
+    width: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    position: 'absolute',
+    zIndex: 2,
+  },
+  googleButtonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: -5,
+  },
+  googleIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
+  },
+});

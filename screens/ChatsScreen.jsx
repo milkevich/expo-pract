@@ -30,6 +30,7 @@ export default function ChatsScreen() {
   const [newChatVisible, setNewChatVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [chats, setChats] = useState([]);
+  const styles = createStyles(theme);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -120,76 +121,6 @@ export default function ChatsScreen() {
     setNewChatVisible(false);
   };
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.backgroundColors.main,
-      gap: 14,
-      padding: 21,
-    },
-    userContainer: {
-      padding: 17,
-      backgroundColor: theme.backgroundColors.main2,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      borderRadius: 20,
-    },
-    userImage: {
-      width: 39,
-      height: 39,
-      borderRadius: 15,
-    },
-    userInfo: {
-      marginLeft: 10,
-    },
-    fixedHeader: {
-      position: 'absolute',
-      top: 38,
-      left: 0,
-      right: 0,
-      padding: 17,
-      backgroundColor: theme.backgroundColors.main2,
-      borderRadius: 20,
-      display: 'flex',
-      alignItems: 'center',
-      zIndex: 10,
-      margin: 21,
-      height: 82,
-    },
-    contentContainer: {
-      backgroundColor: theme.backgroundColors.main,
-      display: 'flex',
-      gap: 15,
-      paddingTop: 120,
-      width: '100%',
-    },
-    modalContent: {
-      flex: 1,
-      backgroundColor: theme.backgroundColors.main,
-      padding: 21,
-      height: height * 0.65,
-      maxHeight: height * 0.65,
-      minHeight: height * 0.65,
-      position: 'absolute',
-      width: '100%',
-      bottom: 0,
-      borderRadius: 35
-    },
-    chatContainer: {
-      padding: 17,
-      backgroundColor: theme.backgroundColors.main2,
-      borderRadius: 20,
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 15,
-    },
-    chatImage: {
-      width: 39,
-      height: 39,
-      borderRadius: 15,
-      marginRight: 10,
-    },
-  });
 
   const goToChat = async (selectedUserId) => {
     const chatId = user.uid < selectedUserId ? user.uid + selectedUserId : selectedUserId + user.uid;
@@ -348,6 +279,7 @@ export default function ChatsScreen() {
           </View>
         </View>
       </Modal>
+      <View style={{width: width, height: 67, position: 'absolute', top: 0, backgroundColor: theme.backgroundColors.main, zIndex: 10}}/>
       <View style={styles.fixedHeader}>
         <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View style={{ width: '83%' }}>
@@ -387,3 +319,75 @@ export default function ChatsScreen() {
     </View>
   );
 }
+
+
+const createStyles = (theme) => StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.backgroundColors.main,
+    gap: 14,
+    padding: 21,
+  },
+  userContainer: {
+    padding: 17,
+    backgroundColor: theme.backgroundColors.main2,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderRadius: 20,
+  },
+  userImage: {
+    width: 39,
+    height: 39,
+    borderRadius: 15,
+  },
+  userInfo: {
+    marginLeft: 10,
+  },
+  fixedHeader: {
+    position: 'absolute',
+    top: 38,
+    left: 0,
+    right: 0,
+    padding: 17,
+    backgroundColor: theme.backgroundColors.main2,
+    borderRadius: 20,
+    display: 'flex',
+    alignItems: 'center',
+    zIndex: 10,
+    margin: 21,
+    height: 82,
+  },
+  contentContainer: {
+    backgroundColor: theme.backgroundColors.main,
+    display: 'flex',
+    gap: 15,
+    paddingTop: 120,
+    width: '100%',
+  },
+  modalContent: {
+    flex: 1,
+    backgroundColor: theme.backgroundColors.main,
+    padding: 21,
+    height: height * 0.65,
+    maxHeight: height * 0.65,
+    minHeight: height * 0.65,
+    position: 'absolute',
+    width: '100%',
+    bottom: 0,
+    borderRadius: 35
+  },
+  chatContainer: {
+    padding: 17,
+    backgroundColor: theme.backgroundColors.main2,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  chatImage: {
+    width: 39,
+    height: 39,
+    borderRadius: 15,
+    marginRight: 10,
+  },
+});

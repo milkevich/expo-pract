@@ -15,6 +15,7 @@ const UserList = ({ onClose, onSelectUser, collaboratedUser, postsFrom = null })
     const { height } = Dimensions.get('window');
     const { user } = useUser();
     const { usersData } = useReload();
+    const styles = createStyles(theme);
 
     useEffect(() => {
         if (postsFrom) {
@@ -24,36 +25,6 @@ const UserList = ({ onClose, onSelectUser, collaboratedUser, postsFrom = null })
             }
         }
     }, [postsFrom, usersData]);
-
-    const styles = StyleSheet.create({
-        container: {
-            flex: 1,
-            padding: 21,
-            backgroundColor: theme.backgroundColors.main,
-            height: height * 0.75,
-            position: 'absolute',
-            width: '100%',
-            bottom: 0,
-            borderRadius: 35,
-            gap: 10,
-        },
-        userContainer: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            padding: 17,
-            backgroundColor: theme.backgroundColors.main2,
-            borderRadius: 15,
-            gap: 5,
-            justifyContent: 'space-between',
-            marginBottom: 10,
-        },
-        userImage: {
-            width: 39,
-            height: 39,
-            borderRadius: 15,
-            marginRight: 10,
-        },
-    });
 
     useEffect(() => {
         setSelectedUser(collaboratedUser);
@@ -124,3 +95,33 @@ const UserList = ({ onClose, onSelectUser, collaboratedUser, postsFrom = null })
 };
 
 export default UserList;
+
+const createStyles = (theme) => StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 21,
+        backgroundColor: theme.backgroundColors.main,
+        height: height * 0.75,
+        position: 'absolute',
+        width: '100%',
+        bottom: 0,
+        borderRadius: 35,
+        gap: 10,
+    },
+    userContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 17,
+        backgroundColor: theme.backgroundColors.main2,
+        borderRadius: 15,
+        gap: 5,
+        justifyContent: 'space-between',
+        marginBottom: 10,
+    },
+    userImage: {
+        width: 39,
+        height: 39,
+        borderRadius: 15,
+        marginRight: 10,
+    },
+});

@@ -147,7 +147,6 @@ const Chat = () => {
     const [chat, setChat] = useState(null);
     const [chatId, setChatId] = useState('');
     const [newMessageText, setNewMessageText] = useState('');
-    const theme = useTheme();
     const scrollViewRef = useRef();
     const navigation = useNavigation();
     const [photos, setPhotos] = useState([]);
@@ -159,6 +158,9 @@ const Chat = () => {
     const [playingMessageId, setPlayingMessageId] = useState(null);
     const [sound, setSound] = useState(null);
     const scrollX = useRef(new Animated.Value(0)).current;
+    const theme = useTheme();
+
+    const styles = createStyles(theme, photos);
 
     async function startRecording() {
         try {
@@ -400,231 +402,6 @@ const Chat = () => {
             });
         }
     };
-
-    const styles = StyleSheet.create({
-        container: {
-            flex: 1,
-            backgroundColor: theme.backgroundColors.main,
-            gap: 14,
-            padding: 21,
-        },
-        mainUserMessage: {
-            padding: 17,
-            backgroundColor: theme.colors.main,
-            borderRadius: 20,
-            maxWidth: width * 0.7,
-            alignSelf: 'flex-end',
-            flexShrink: 1,
-            flexGrow: 0,
-        },
-        mainUserMessageTime: {
-            alignSelf: 'flex-end',
-            flexShrink: 1,
-            flexGrow: 0,
-            paddingTop: 10,
-        },
-        likedMain: {
-            alignSelf: 'flex-end',
-            flexShrink: 1,
-            flexGrow: 0,
-            width: 30,
-            height: 30,
-            backgroundColor: theme.colors.main,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingLeft: 1,
-            borderRadius: 20,
-            marginTop: -15,
-        },
-        mainUserMessageImg: {
-            alignSelf: 'flex-end',
-            flexShrink: 1,
-            flexGrow: 0,
-            paddingBottom: 20,
-            paddingTop: 15,
-            paddingRight: 7,
-        },
-        secondUserMessage: {
-            padding: 17,
-            backgroundColor: theme.backgroundColors.secondary,
-            borderRadius: 20,
-            maxWidth: width * 0.7,
-            alignSelf: 'flex-start',
-            flexShrink: 1,
-            flexGrow: 0,
-        },
-        secondUserMessageTime: {
-            alignSelf: 'flex-start',
-            flexShrink: 1,
-            flexGrow: 0,
-            paddingTop: 10,
-        },
-        likedSecond: {
-            alignSelf: 'flex-start',
-            flexShrink: 1,
-            flexGrow: 0,
-            width: 30,
-            height: 30,
-            backgroundColor: theme.backgroundColors.secondary,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingLeft: 1,
-            borderRadius: 20,
-            marginTop: -15,
-        },
-        secondUserMessageImg: {
-            alignSelf: 'flex-start',
-            flexShrink: 1,
-            flexGrow: 0,
-            paddingBottom: 20,
-            paddingTop: 15,
-            paddingLeft: 7,
-        },
-        selectedPhotosContainer: {
-            flexDirection: 'row',
-            marginBottom: photos.length === 0 ? 0 : 10
-        },
-        selectedPhoto: {
-            width: 65,
-            height: 65,
-            borderRadius: 10,
-            marginRight: 20,
-        },
-        waveformContainer: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            width: '70%',
-            borderRadius: 15,
-            paddingRight: 15,
-            paddingLeft: 5,
-            height: 39,
-        },
-        waveformContainerInput: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            width: '70%',
-            borderRadius: 15,
-            paddingRight: 15,
-            paddingLeft: 5,
-            height: 39,
-            backgroundColor: theme.backgroundColors.main
-        },
-        waveformBar: {
-            width: 3,
-            borderRadius: 2,
-            backgroundColor: theme.colors.main,
-        },
-        voiceMessageContainerMain: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            backgroundColor: theme.colors.main,
-            borderRadius: 20,
-            paddingRight: 15,
-            paddingLeft: 5,
-            height: 59,
-            maxWidth: 250,
-            alignSelf: 'flex-end',
-            flexShrink: 1,
-            flexGrow: 0,
-            padding: 17,
-            marginTop: -20
-        },
-        voiceMessageContainerSecond: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            backgroundColor: theme.backgroundColors.secondary,
-            borderRadius: 20,
-            paddingRight: 15,
-            paddingLeft: 5,
-            height: 59,
-            maxWidth: 250,
-            alignSelf: 'flex-start',
-            flexShrink: 1,
-            flexGrow: 0,
-            marginTop: -20
-        },
-        postContainerMain: {
-            padding: 17,
-            backgroundColor: '#fff',
-            borderRadius: 20,
-            marginBottom: 5,
-            gap: 17,
-            maxWidth: 300,
-            alignSelf: 'flex-end',
-            flexShrink: 1,
-            flexGrow: 0,
-            maxHeight: 400,
-        },
-        postContainerSecond: {
-            padding: 17,
-            backgroundColor: '#fff',
-            borderRadius: 20,
-            marginBottom: 5,
-            gap: 17,
-            maxWidth: 300,
-            alignSelf: 'flex-start',
-            flexShrink: 1,
-            flexGrow: 0,
-            maxHeight: 400,
-        },
-        authorContainer: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginBottom: 10,
-            justifyContent: 'space-between',
-        },
-        authorImage: {
-            width: 39,
-            height: 39,
-            borderRadius: 15,
-            marginRight: 10,
-        },
-        authorDetails: {
-            flexDirection: 'column',
-            marginLeft: 5,
-        },
-        postText: {
-            fontSize: 14,
-            color: '#333',
-            marginTop: -5,
-            fontWeight: 'regular'
-        },
-        userImageWrapper: {
-            width: 25,
-            height: 25,
-            borderRadius: 10.5,
-            position: 'absolute',
-            left: 22.5,
-            bottom: -3,
-            borderWidth: 3,
-            borderColor: theme.backgroundColors.main2,
-            backgroundColor: theme.backgroundColors.main2,
-            justifyContent: 'center',
-            alignItems: 'center',
-        },
-        userImage: {
-            width: 19.5,
-            height: 19.5,
-            borderRadius: 7.5,
-        },
-        imagePreview: {
-            maxWidth: 320,
-            maxHeight: 400,
-            width: '100%',
-            height: '100%',
-            borderRadius: 15,
-        },
-        paginatorContainer: {
-            position: 'absolute',
-            bottom: -35.5,
-            width: '100%',
-            alignItems: 'center',
-        },
-    });
 
     const handleNavigateToCollaborator = (userId) => {
         navigation.navigate('UsersProfile', { userId })
@@ -879,3 +656,228 @@ const Chat = () => {
 };
 
 export default Chat;
+
+const createStyles = (theme, photos) => StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: theme.backgroundColors.main,
+        gap: 14,
+        padding: 21,
+    },
+    mainUserMessage: {
+        padding: 17,
+        backgroundColor: theme.colors.main,
+        borderRadius: 20,
+        maxWidth: width * 0.7,
+        alignSelf: 'flex-end',
+        flexShrink: 1,
+        flexGrow: 0,
+    },
+    mainUserMessageTime: {
+        alignSelf: 'flex-end',
+        flexShrink: 1,
+        flexGrow: 0,
+        paddingTop: 10,
+    },
+    likedMain: {
+        alignSelf: 'flex-end',
+        flexShrink: 1,
+        flexGrow: 0,
+        width: 30,
+        height: 30,
+        backgroundColor: theme.colors.main,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingLeft: 1,
+        borderRadius: 20,
+        marginTop: -15,
+    },
+    mainUserMessageImg: {
+        alignSelf: 'flex-end',
+        flexShrink: 1,
+        flexGrow: 0,
+        paddingBottom: 20,
+        paddingTop: 15,
+        paddingRight: 7,
+    },
+    secondUserMessage: {
+        padding: 17,
+        backgroundColor: theme.backgroundColors.secondary,
+        borderRadius: 20,
+        maxWidth: width * 0.7,
+        alignSelf: 'flex-start',
+        flexShrink: 1,
+        flexGrow: 0,
+    },
+    secondUserMessageTime: {
+        alignSelf: 'flex-start',
+        flexShrink: 1,
+        flexGrow: 0,
+        paddingTop: 10,
+    },
+    likedSecond: {
+        alignSelf: 'flex-start',
+        flexShrink: 1,
+        flexGrow: 0,
+        width: 30,
+        height: 30,
+        backgroundColor: theme.backgroundColors.secondary,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingLeft: 1,
+        borderRadius: 20,
+        marginTop: -15,
+    },
+    secondUserMessageImg: {
+        alignSelf: 'flex-start',
+        flexShrink: 1,
+        flexGrow: 0,
+        paddingBottom: 20,
+        paddingTop: 15,
+        paddingLeft: 7,
+    },
+    selectedPhotosContainer: {
+        flexDirection: 'row',
+        marginBottom: photos.length === 0 ? 0 : 10
+    },
+    selectedPhoto: {
+        width: 65,
+        height: 65,
+        borderRadius: 10,
+        marginRight: 20,
+    },
+    waveformContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '70%',
+        borderRadius: 15,
+        paddingRight: 15,
+        paddingLeft: 5,
+        height: 39,
+    },
+    waveformContainerInput: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '70%',
+        borderRadius: 15,
+        paddingRight: 15,
+        paddingLeft: 5,
+        height: 39,
+        backgroundColor: theme.backgroundColors.main
+    },
+    waveformBar: {
+        width: 3,
+        borderRadius: 2,
+        backgroundColor: theme.colors.main,
+    },
+    voiceMessageContainerMain: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: theme.colors.main,
+        borderRadius: 20,
+        paddingRight: 15,
+        paddingLeft: 5,
+        height: 59,
+        maxWidth: 250,
+        alignSelf: 'flex-end',
+        flexShrink: 1,
+        flexGrow: 0,
+        padding: 17,
+        marginTop: -20
+    },
+    voiceMessageContainerSecond: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: theme.backgroundColors.secondary,
+        borderRadius: 20,
+        paddingRight: 15,
+        paddingLeft: 5,
+        height: 59,
+        maxWidth: 250,
+        alignSelf: 'flex-start',
+        flexShrink: 1,
+        flexGrow: 0,
+        marginTop: -20
+    },
+    postContainerMain: {
+        padding: 17,
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        marginBottom: 5,
+        gap: 17,
+        maxWidth: 300,
+        alignSelf: 'flex-end',
+        flexShrink: 1,
+        flexGrow: 0,
+        maxHeight: 400,
+    },
+    postContainerSecond: {
+        padding: 17,
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        marginBottom: 5,
+        gap: 17,
+        maxWidth: 300,
+        alignSelf: 'flex-start',
+        flexShrink: 1,
+        flexGrow: 0,
+        maxHeight: 400,
+    },
+    authorContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+        justifyContent: 'space-between',
+    },
+    authorImage: {
+        width: 39,
+        height: 39,
+        borderRadius: 15,
+        marginRight: 10,
+    },
+    authorDetails: {
+        flexDirection: 'column',
+        marginLeft: 5,
+    },
+    postText: {
+        fontSize: 14,
+        color: '#333',
+        marginTop: -5,
+        fontWeight: 'regular'
+    },
+    userImageWrapper: {
+        width: 25,
+        height: 25,
+        borderRadius: 10.5,
+        position: 'absolute',
+        left: 22.5,
+        bottom: -3,
+        borderWidth: 3,
+        borderColor: theme.backgroundColors.main2,
+        backgroundColor: theme.backgroundColors.main2,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    userImage: {
+        width: 19.5,
+        height: 19.5,
+        borderRadius: 7.5,
+    },
+    imagePreview: {
+        maxWidth: 320,
+        maxHeight: 400,
+        width: '100%',
+        height: '100%',
+        borderRadius: 15,
+    },
+    paginatorContainer: {
+        position: 'absolute',
+        bottom: -35.5,
+        width: '100%',
+        alignItems: 'center',
+    },
+});

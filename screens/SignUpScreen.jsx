@@ -29,6 +29,7 @@ const SignUpScreen = () => {
     const fadeAnim = useState(new Animated.Value(1))[0];
     const slideAnim = useState(new Animated.Value(0))[0];
     const navigation = useNavigation();
+    const styles = createStyles(theme);
 
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -227,34 +228,6 @@ const SignUpScreen = () => {
         }
     };
 
-    const styles = StyleSheet.create({
-        container: {
-            flex: 1,
-            padding: 41,
-            paddingTop: 80,
-            backgroundColor: theme.backgroundColors.main2,
-        },
-        header: {
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 20,
-        },
-        formContainer: {
-            flex: 1,
-            justifyContent: 'center',
-        },
-        uploadContainer: {
-            flex: 1,
-            justifyContent: 'center',
-            position: 'relative',
-            left: 80,
-        },
-        nextButton: {
-            marginBottom: 20,
-        },
-    });
-
     return (
         <View style={styles.container}>
             {loading && <Loader/>}
@@ -300,3 +273,31 @@ const SignUpScreen = () => {
 };
 
 export default SignUpScreen;
+
+const createStyles = (theme) => StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 41,
+        paddingTop: 80,
+        backgroundColor: theme.backgroundColors.main2,
+    },
+    header: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 20,
+    },
+    formContainer: {
+        flex: 1,
+        justifyContent: 'center',
+    },
+    uploadContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        position: 'relative',
+        left: 80,
+    },
+    nextButton: {
+        marginBottom: 20,
+    },
+});

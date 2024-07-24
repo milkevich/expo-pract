@@ -40,6 +40,7 @@ const CreatePost = () => {
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scrollX = useRef(new Animated.Value(0)).current;
     const [loading, setLoading] = useState(false)
+    const styles = createStyles(theme, photos);
 
     const pickImage = async () => {
         if (photos.length >= 3) {
@@ -155,127 +156,6 @@ const CreatePost = () => {
         console.log('Selected user:', user);
         handleCloseUsersList(user);
     };
-
-    const styles = StyleSheet.create({
-        container: {
-            flex: 1,
-            backgroundColor: theme.backgroundColors.main,
-        },
-        contentContainer: {
-            padding: 21,
-            backgroundColor: theme.backgroundColors.main,
-            display: 'flex',
-            gap: 15,
-            paddingTop: 80,
-        },
-        fixedHeader: {
-            position: 'absolute',
-            top: 40,
-            left: 0,
-            right: 0,
-            padding: 17,
-            backgroundColor: theme.backgroundColors.main2,
-            borderRadius: 20,
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 15,
-            alignItems: 'center',
-            zIndex: 10,
-            margin: 21,
-        },
-        arrowIcon: {
-            transform: [{ rotate: '180deg' }],
-            width: 21,
-            height: 21,
-            position: 'relative',
-            marginBottom: -5,
-            top: 9,
-            left: 9,
-        },
-        attachIcon: {
-            width: 21,
-            height: 21,
-            position: 'relative',
-            marginBottom: -5,
-            top: 9,
-            left: 9,
-        },
-        buttonContainer: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-        },
-        imagePreviewContainer: {
-            display: 'flex',
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            gap: 10,
-        },
-        imageContainer: {
-            position: 'relative',
-        },
-        imagePreview: {
-            maxWidth: 320,
-            maxHeight: 400,
-            width: '100%',
-            height: '100%',
-            borderRadius: 15,
-        },
-        deleteIcon: {
-            position: 'absolute',
-            top: 5,
-            right: 5,
-            width: 20,
-            height: 20,
-        },
-        modalContainer: {
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-        },
-        modalContent: {
-            width: 351,
-            backgroundColor: theme.backgroundColors.main2,
-            padding: 17,
-            borderRadius: 20,
-            display: 'flex',
-            gap: 19,
-        },
-        modalButtons: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-        },
-        backdrop: {
-            ...StyleSheet.absoluteFillObject,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: fadeVisible ? 'flex' : 'none',
-            zIndex: 100,
-        },
-        paginatorContainer: {
-            position: 'absolute',
-            bottom: -42.5,
-            width: '100%',
-            alignItems: 'center',
-            opacity: photos.length === 1 ? 0 : 1,
-        },
-        userImageWrapper: {
-            width: 25,
-            height: 25,
-            borderRadius: 10.5,
-            position: 'absolute',
-            left: 22.5,
-            bottom: -3,
-            borderWidth: 3,
-            borderColor: theme.backgroundColors.main2,
-            backgroundColor: theme.backgroundColors.main2,
-            justifyContent: 'center',
-            alignItems: 'center',
-        },
-        userImage: {
-            width: 19.5,
-            height: 19.5,
-            borderRadius: 7.5,
-        },
-    });
 
     const share = async (e) => {
         e.preventDefault();
@@ -495,10 +375,125 @@ const CreatePost = () => {
                 >
                     <UserList collaboratedUser={collaboratedUser} onClose={handleCloseUsersList} onSelectUser={handleSelectUser} />
                 </Modal>
-                <Animated.View style={[styles.backdrop, { opacity: fadeAnim }]} />
+                <Animated.View style={{ opacity: fadeAnim, backgroundColor: 'rgba(0, 0, 0, 0.5)', display: fadeVisible ? 'flex' : 'none', width: width, height: height, zIndex: 100, position: 'absolute'}} />
             </View>
         </>
     );
 };
 
 export default CreatePost;
+
+const createStyles = (theme, photos) => StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: theme.backgroundColors.main,
+    },
+    contentContainer: {
+        padding: 21,
+        backgroundColor: theme.backgroundColors.main,
+        display: 'flex',
+        gap: 15,
+        paddingTop: 80,
+    },
+    fixedHeader: {
+        position: 'absolute',
+        top: 40,
+        left: 0,
+        right: 0,
+        padding: 17,
+        backgroundColor: theme.backgroundColors.main2,
+        borderRadius: 20,
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 15,
+        alignItems: 'center',
+        zIndex: 10,
+        margin: 21,
+    },
+    arrowIcon: {
+        transform: [{ rotate: '180deg' }],
+        width: 21,
+        height: 21,
+        position: 'relative',
+        marginBottom: -5,
+        top: 9,
+        left: 9,
+    },
+    attachIcon: {
+        width: 21,
+        height: 21,
+        position: 'relative',
+        marginBottom: -5,
+        top: 9,
+        left: 9,
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    imagePreviewContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 10,
+    },
+    imageContainer: {
+        position: 'relative',
+    },
+    imagePreview: {
+        maxWidth: 320,
+        maxHeight: 400,
+        width: '100%',
+        height: '100%',
+        borderRadius: 15,
+    },
+    deleteIcon: {
+        position: 'absolute',
+        top: 5,
+        right: 5,
+        width: 20,
+        height: 20,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        width: 351,
+        backgroundColor: theme.backgroundColors.main2,
+        padding: 17,
+        borderRadius: 20,
+        display: 'flex',
+        gap: 19,
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    paginatorContainer: {
+        position: 'absolute',
+        bottom: -42.5,
+        width: '100%',
+        alignItems: 'center',
+        opacity: photos.length === 1 ? 0 : 1,
+    },
+    userImageWrapper: {
+        width: 25,
+        height: 25,
+        borderRadius: 10.5,
+        position: 'absolute',
+        left: 22.5,
+        bottom: -3,
+        borderWidth: 3,
+        borderColor: theme.backgroundColors.main2,
+        backgroundColor: theme.backgroundColors.main2,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    userImage: {
+        width: 19.5,
+        height: 19.5,
+        borderRadius: 7.5,
+    },
+});

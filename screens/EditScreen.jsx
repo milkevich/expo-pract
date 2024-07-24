@@ -27,12 +27,13 @@ const EditScreen = () => {
     const [password, setPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [photoURL, setPhotoURL] = useState(null);
-
     const theme = useTheme();
     const navigation = useNavigation();
     const { user } = useUser();
     const auth = getAuth();
     const { setReload, setUsersData } = useReload();
+    const styles = createStyles(theme);
+
 
     useEffect(() => {
         let unsubscribe;
@@ -142,27 +143,6 @@ const EditScreen = () => {
         }
     };
 
-    const styles = StyleSheet.create({
-        container: {
-            flex: 1,
-            padding: 21,
-            backgroundColor: theme.backgroundColors.main,
-            height: height,
-            position: 'absolute',
-            width: '100%',
-            bottom: 0,
-            borderRadius: 35,
-            gap: 10,
-            paddingTop: 39,
-        },
-        contentContainer: {
-            backgroundColor: theme.backgroundColors.main,
-            display: 'flex',
-            gap: 15,
-            paddingTop: 49,
-        },
-    });
-
     return (
         <View style={styles.container}>
             <View style={{ height: 49 }} />
@@ -206,3 +186,24 @@ const EditScreen = () => {
 }
 
 export default EditScreen;
+
+const createStyles = (theme) => StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 21,
+        backgroundColor: theme.backgroundColors.main,
+        height: height,
+        position: 'absolute',
+        width: '100%',
+        bottom: 0,
+        borderRadius: 35,
+        gap: 10,
+        paddingTop: 39,
+    },
+    contentContainer: {
+        backgroundColor: theme.backgroundColors.main,
+        display: 'flex',
+        gap: 15,
+        paddingTop: 49,
+    },
+});

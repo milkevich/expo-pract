@@ -32,7 +32,7 @@ const Typography = ({
       maxWidth: width,
       fontWeight: weight,
       textAlign: textAlign,
-      overflow: 'hidden', // This doesn't directly affect the Text component in RN
+      overflow: 'hidden',
     },
   });
 

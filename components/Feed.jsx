@@ -37,14 +37,12 @@ const Feed = ({ postsFrom, allPosts, following }) => {
     const [followings, setFollowings] = useState([]);
     const [userData, setUserData] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
-    const [shareVisible, setShareVisible] = useState(false);
-    const [chats, setChats] = useState([]);
-    const [chatUsersDetails, setChatUsersDetails] = useState({});
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [userSelectionVisible, setUserSelectionVisible] = useState(false);
     const { showBackdrop, hideBackdrop } = useBackdrop();
     const [selectedPost, setSelectedPost] = useState(null)
+    const styles = createStyles(theme);
 
     const getRelativeTime = (date) => {
         const now = new Date();
@@ -260,119 +258,6 @@ const Feed = ({ postsFrom, allPosts, following }) => {
             </View>
         </TouchableOpacity>
     );
-
-    const styles = StyleSheet.create({
-        postContainer: {
-            padding: 17,
-            backgroundColor: '#fff',
-            borderRadius: 20,
-            marginBottom: 14,
-            gap: 17,
-        },
-        authorContainer: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginBottom: 10,
-            justifyContent: 'space-between',
-        },
-        authorImage: {
-            width: 39,
-            height: 39,
-            borderRadius: 15,
-            marginRight: 10,
-        },
-        authorDetails: {
-            flexDirection: 'column',
-            marginLeft: 5,
-        },
-        postText: {
-            fontSize: 14,
-            color: '#333',
-            marginTop: -5,
-            fontWeight: 'regular'
-        },
-        userImageWrapper: {
-            width: 25,
-            height: 25,
-            borderRadius: 10.5,
-            position: 'absolute',
-            left: 22.5,
-            bottom: -3,
-            borderWidth: 3,
-            borderColor: theme.backgroundColors.main2,
-            backgroundColor: theme.backgroundColors.main2,
-            justifyContent: 'center',
-            alignItems: 'center',
-        },
-        userImage: {
-            width: 19.5,
-            height: 19.5,
-            borderRadius: 7.5,
-        },
-        imagePreview: {
-            maxWidth: 320,
-            maxHeight: 400,
-            width: '100%',
-            height: '100%',
-            borderRadius: 15,
-        },
-        paginatorContainer: {
-            position: 'absolute',
-            bottom: -35.5,
-            width: '100%',
-            alignItems: 'center',
-        },
-        modalContent: {
-            backgroundColor: theme.backgroundColors.main2,
-            padding: 21,
-            borderRadius: 20,
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            position: 'absolute',
-            width: width - 42,
-            marginLeft: 21,
-            bottom: -180,
-            height: 150
-        },
-        shareModal: {
-            backgroundColor: theme.backgroundColors.main2,
-            padding: 21,
-            borderRadius: 35,
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            position: 'absolute',
-            width: width,
-            bottom: -215,
-            height: height * 0.5
-        },
-        userContainer: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            padding: 17,
-            backgroundColor: theme.backgroundColors.main2,
-            borderRadius: 15,
-            gap: 5,
-            justifyContent: 'space-between',
-            marginBottom: 10,
-        },
-        userImage: {
-            width: 39,
-            height: 39,
-            borderRadius: 15,
-            marginRight: 10,
-        },
-        userListContainer: {
-            flex: 1,
-            padding: 21,
-            backgroundColor: theme.backgroundColors.main,
-            height: height * 0.65,
-            position: 'absolute',
-            width: '100%',
-            bottom: 0,
-            borderRadius: 35,
-            gap: 10,
-        }
-    });
 
     const handleLikePost = async (postId) => {
         try {
@@ -733,3 +618,116 @@ const Feed = ({ postsFrom, allPosts, following }) => {
 };
 
 export default Feed;
+
+const createStyles = (theme) => StyleSheet.create({
+    postContainer: {
+        padding: 17,
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        marginBottom: 14,
+        gap: 17,
+    },
+    authorContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+        justifyContent: 'space-between',
+    },
+    authorImage: {
+        width: 39,
+        height: 39,
+        borderRadius: 15,
+        marginRight: 10,
+    },
+    authorDetails: {
+        flexDirection: 'column',
+        marginLeft: 5,
+    },
+    postText: {
+        fontSize: 14,
+        color: '#333',
+        marginTop: -5,
+        fontWeight: 'regular'
+    },
+    userImageWrapper: {
+        width: 25,
+        height: 25,
+        borderRadius: 10.5,
+        position: 'absolute',
+        left: 22.5,
+        bottom: -3,
+        borderWidth: 3,
+        borderColor: theme.backgroundColors.main2,
+        backgroundColor: theme.backgroundColors.main2,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    userImage: {
+        width: 19.5,
+        height: 19.5,
+        borderRadius: 7.5,
+    },
+    imagePreview: {
+        maxWidth: 320,
+        maxHeight: 400,
+        width: '100%',
+        height: '100%',
+        borderRadius: 15,
+    },
+    paginatorContainer: {
+        position: 'absolute',
+        bottom: -35.5,
+        width: '100%',
+        alignItems: 'center',
+    },
+    modalContent: {
+        backgroundColor: theme.backgroundColors.main2,
+        padding: 21,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        position: 'absolute',
+        width: width - 42,
+        marginLeft: 21,
+        bottom: -180,
+        height: 150
+    },
+    shareModal: {
+        backgroundColor: theme.backgroundColors.main2,
+        padding: 21,
+        borderRadius: 35,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        position: 'absolute',
+        width: width,
+        bottom: -215,
+        height: height * 0.5
+    },
+    userContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 17,
+        backgroundColor: theme.backgroundColors.main2,
+        borderRadius: 15,
+        gap: 5,
+        justifyContent: 'space-between',
+        marginBottom: 10,
+    },
+    userImage: {
+        width: 39,
+        height: 39,
+        borderRadius: 15,
+        marginRight: 10,
+    },
+    userListContainer: {
+        flex: 1,
+        padding: 21,
+        backgroundColor: theme.backgroundColors.main,
+        height: height * 0.65,
+        position: 'absolute',
+        width: '100%',
+        bottom: 0,
+        borderRadius: 35,
+        gap: 10,
+    }
+});
